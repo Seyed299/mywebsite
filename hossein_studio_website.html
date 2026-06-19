@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOSSEIN DIGITAL STUDIO | NEURAL CONTACT v10.0</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #0088cc;
+            --phone-accent: #00ff88;
+            --wa-accent: #25D366;
+            --bg: #020205;
+            --bg-grad: radial-gradient(circle at center, #0a1128 0%, #020205 100%);
+            --text-color: #ffffff;
+            --text-muted: #b0b8d1;
+            --input-bg: rgba(255,255,255,0.03);
+            
+            --glass-bg: rgba(10, 15, 30, 0.1); 
+            --glass-blur: blur(8px) saturate(120%); 
+        }
+
+        body.light-mode {
+            --bg: #eef2f9;
+            --bg-grad: radial-gradient(circle at center, #ffffff 0%, #dde6f5 100%);
+            --text-color: #0a1128;
+            --text-muted: #4a5578;
+            --input-bg: rgba(0,0,0,0.04);
+            --primary: #0088cc;
+            --glass-bg: rgba(255, 255, 255, 0.15); 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #05060f; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-color);
+            font-family: 'Vazirmatn', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.6s, color 0.6s;
+        }
+
+        /* SCROLL PROGRESS BAR */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(to right, var(--primary), var(--phone-accent));
+            z-index: 10001;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* CINEMATIC PRELOADER */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+        #preloader.hidden { opacity: 0; visibility: hidden; }
+
+        .boot-text {
+            font-family: monospace;
+            color: var(--primary);
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            margin-bottom: 2rem;
+            min-height: 24px;
+        }
+        .loader-ring {
+            width: 90px; height: 90px;
+            border: 2px solid rgba(0,242,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 30px rgba(0,242,255,0.3);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .boot-percent {
+            margin-top: 1.5rem;
+            font-family: monospace;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        /* PREMIUM CURSOR */
+        #cursor {
+            width: 8px; height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 100001;
+            box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
+            transition: width 0.2s, height 0.2s, background 0.2s;
+        }
+        #cursor.hover-active {
+            width: 20px; height: 20px;
+            background: var(--phone-accent);
+            box-shadow: 0 0 15px var(--phone-accent), 0 0 30px var(--phone-accent);
+        }
+        #cursor-follower {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(0, 242, 255, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 100000;
+            transition: width 0.3s, height 0.3s, border-color 0.3s;
+        }
+        #cursor-follower.hover-active {
+            width: 70px; height: 70px;
+            border-color: var(--phone-accent);
+        }
+
+        /* WEBGL BACKGROUND */
+        #canvas-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background: var(--bg-grad);
+            transition: background 0.6s;
+        }
+
+        /* LIQUID GLASS CORE ARCHITECTURE */
+        .liquid-glass-card {
+            position: relative;
+            border-radius: 40px;
+            z-index: 1;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .liquid-glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 40px 80px rgba(0, 242, 255, 0.15);
+        }
+
+        .lg-face {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: url('#liquid-glass-filter') blur(12px) saturate(140%);
+            -webkit-backdrop-filter: url('#liquid-glass-filter') blur(12px) saturate(140%);
+            z-index: -3;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.03);
+            transition: background 0.4s;
+        }
+
+        .lg-bend {
+            position: absolute;
+            inset: 8px; 
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 5px 5px 20px rgba(255, 255, 255, 0.05),
+                        inset -5px -5px 20px rgba(0, 0, 0, 0.3);
+            z-index: -2;
+            pointer-events: none;
+            transition: border-color 0.4s;
+        }
+
+        .lg-edge {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.1) 100%) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .lg-content {
+            position: relative;
+            z-index: 5;
+            padding: 3.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .liquid-glass-card:hover .lg-face { background: rgba(0, 242, 255, 0.05); }
+        .liquid-glass-card:hover .lg-bend { border-color: rgba(0, 242, 255, 0.3); }
+
+        .theme-phone .lg-face { background: rgba(0, 255, 136, 0.03); }
+        .theme-phone .lg-edge { background: linear-gradient(135deg, rgba(0,255,136,0.6) 0%, transparent 40%, rgba(0,255,136,0.2) 100%) border-box; }
+        .theme-phone .lg-bend { box-shadow: inset 5px 5px 20px rgba(0,255,136,0.1), inset -5px -5px 20px rgba(0,0,0,0.4); }
+
+        body.light-mode .liquid-glass-card { box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1); }
+        body.light-mode .lg-face { background: rgba(255, 255, 255, 0.2); box-shadow: none; }
+        body.light-mode .lg-bend { 
+            border-color: rgba(255,255,255,0.6); 
+            box-shadow: inset 5px 5px 20px rgba(255,255,255,0.8), inset -5px -5px 20px rgba(0,0,0,0.05); 
+        }
+        body.light-mode .lg-edge { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, transparent 50%, rgba(0,0,0,0.1) 100%) border-box; }
+
+        /* NAVIGATION */
+        nav.liquid-glass-nav {
+            position: fixed;
+            top: 20px;
+            left: 5%;
+            width: 90%;
+            border-radius: 25px;
+            z-index: 1000;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s ease;
+        }
+
+        nav.liquid-glass-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 242, 255, 0.1);
+        }
+
+        nav.liquid-glass-nav .lg-face {
+            backdrop-filter: url('#liquid-glass-filter') blur(10px) saturate(150%);
+            -webkit-backdrop-filter: url('#liquid-glass-filter') blur(10px) saturate(150%);
+        }
+
+        nav.liquid-glass-nav .lg-bend { inset: 4px; border-radius: 21px; }
+
+        .nav-content {
+            position: relative;
+            z-index: 5;
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+        .logo {
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, var(--primary), var(--text-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--phone-accent);
+            border-radius: 50%;
+            margin-left: 6px;
+            box-shadow: 0 0 10px var(--phone-accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        .theme-toggle {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+        }
+        .theme-toggle:hover { transform: rotate(40deg) scale(1.1); box-shadow: 0 0 20px var(--primary); }
+
+        body.light-mode nav.liquid-glass-nav { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); }
+
+        /* MODAL SYSTEMS */
+        .gateway-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            padding: 20px;
+        }
+        .gateway-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 4, 15, 0.6);
+            backdrop-filter: blur(10px);
+        }
+        .gateway-content {
+            position: relative;
+            z-index: 5001;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* APP SELECTION CARDS */
+        .app-cards {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .app-card {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 2rem 1rem;
+            cursor: none;
+            transition: 0.4s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .app-card:hover { transform: translateY(-8px); }
+        .tg-card:hover { border-color: var(--secondary); box-shadow: 0 10px 30px rgba(0, 136, 204, 0.2); }
+        .wa-card:hover { border-color: var(--wa-accent); box-shadow: 0 10px 30px rgba(37, 211, 102, 0.2); }
+        .app-card h3 { margin-top: 1rem; font-size: 1.5rem; font-weight: 900; }
+
+        @media (max-width: 768px) {
+            .app-cards { flex-direction: column; }
+            nav.liquid-glass-nav { width: 95%; left: 2.5%; top: 10px; }
+            .nav-content { padding: 1rem 1.5rem; }
+        }
+
+        /* ================== SVG ANIMATIONS ================== */
+        .hologram-icon {
+            width: 140px; height: 140px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ripple {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            animation: rippleAnim 2.5s infinite ease-out;
+        }
+        
+        @keyframes rippleAnim {
+            0% { width: 80%; height: 80%; opacity: 1; border: 2px solid currentColor; }
+            100% { width: 135%; height: 135%; opacity: 0; border: 1px solid currentColor; }
+        }
+        
+        .draw-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawPathAnim 3.5s infinite ease-in-out;
+        }
+        @keyframes drawPathAnim {
+            0% { stroke-dashoffset: 100; fill-opacity: 0; }
+            35% { stroke-dashoffset: 0; fill-opacity: 0; }
+            60% { stroke-dashoffset: 0; fill-opacity: 1; }
+            100% { stroke-dashoffset: 0; fill-opacity: 1; }
+        }
+
+        .contact-item {
+            background: var(--input-bg);
+            padding: 1.2rem 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .contact-item:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .contact-item.phone-item:hover { background: rgba(0, 255, 136, 0.15); border-color: var(--phone-accent); }
+        .contact-item span { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; direction: ltr; }
+
+        .close-btn {
+            position: absolute;
+            top: 25px; left: 25px;
+            color: var(--text-color);
+            cursor: none;
+            z-index: 10;
+            transition: transform 0.3s;
+        }
+        .close-btn:hover { transform: rotate(90deg); }
+
+        .back-btn {
+            position: absolute;
+            top: 25px; right: 25px;
+            color: var(--text-color);
+            cursor: none;
+            z-index: 10;
+            transition: transform 0.3s;
+        }
+        .back-btn:hover { transform: translateX(-5px); }
+
+        /* CONTACT FORM */
+        .form-group { margin-bottom: 1.5rem; text-align: right; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.3rem;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            color: var(--text-color);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 1rem;
+            transition: 0.3s;
+            cursor: none;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0,242,255,0.25);
+            background: rgba(0,242,255,0.04);
+        }
+        textarea.form-input { resize: vertical; min-height: 100px; }
+        .form-input.invalid {
+            border-color: #ff3b5c;
+            box-shadow: 0 0 15px rgba(255,59,92,0.3);
+            animation: shake 0.4s;
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0);}
+            25%{transform:translateX(-8px);}
+            75%{transform:translateX(8px);}
+        }
+        .error-msg {
+            color: #ff3b5c;
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            min-height: 16px;
+            display: block;
+        }
+        .form-submit {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            cursor: none;
+            transition: 0.3s;
+        }
+        .form-submit:hover { box-shadow: 0 0 30px var(--primary); transform: translateY(-3px); }
+
+        .form-success { text-align: center; padding: 1rem 0; display: none; }
+        .success-check {
+            width: 80px; height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: rgba(0,255,136,0.15);
+            border: 2px solid var(--phone-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--phone-accent);
+        }
+
+        /* FAB GROUP */
+        .fab-group {
+            position: fixed;
+            bottom: 40px; right: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 2000;
+        }
+        .fab {
+            width: 70px; height: 70px;
+            cursor: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+        }
+        .fab-form {
+            background: rgba(0, 242, 255, 0.15);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+        .fab-call {
+            background: rgba(0, 255, 136, 0.15);
+            border: 2px solid var(--phone-accent);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        .fab:hover { transform: scale(1.1) rotate(10deg); }
+        .fab-form:hover { background: var(--primary); }
+        .fab-call:hover { background: var(--phone-accent); }
+
+        /* SECTIONS */
+        section {
+            padding: 160px 10% 100px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .section-tag {
+            color: var(--primary);
+            font-family: monospace;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 40px rgba(0, 242, 255, 0.4);
+        }
+        .glitch { position: relative; color: var(--text-color); }
+        .typed-cursor {
+            display: inline-block;
+            width: 4px; height: 1em;
+            background: var(--primary);
+            margin-right: 4px;
+            animation: blink 0.7s infinite;
+            vertical-align: middle;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .btn-main {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1.2rem 4rem;
+            background: var(--primary);
+            color: black;
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: 900;
+            transition: 0.3s;
+            border: none;
+            cursor: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-main:hover { box-shadow: 0 0 30px var(--primary); transform: translateY(-5px); }
+
+        .stats-row { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem; 
+            margin-top: 4rem; 
+        }
+        .stat-content { text-align: center; padding: 1.5rem !important; }
+        .stat-content h4 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(to top, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-content p { color: var(--text-muted); font-size: 1rem; font-weight: bold; }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+        .service-card-content i { color: var(--primary); margin-bottom: 1rem; }
+
+        footer { padding: 4rem; text-align: center; opacity: 0.4; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        .sound-toggle {
+            position: fixed;
+            bottom: 40px; left: 40px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+        .sound-toggle:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
+
+        /* ============================================================
+           ✨ NEW ENHANCEMENTS — Music / Portfolio Album / FX
+           ============================================================ */
+
+        /* ---- Music Toggle Button ---- */
+        .music-toggle {
+            position: fixed;
+            bottom: 40px; left: 110px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary);
+            z-index: 990;
+            transition: transform .3s, box-shadow .3s, border-color .3s;
+            overflow: hidden;
+        }
+        .music-toggle:hover { transform: scale(1.12); border-color: var(--primary); }
+        .music-toggle.playing { box-shadow: 0 0 25px var(--primary), inset 0 0 12px rgba(0,242,255,.3); border-color: var(--primary); }
+        .music-toggle .eq { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
+        .music-toggle .eq span {
+            width: 3px; height: 6px; background: var(--primary); border-radius: 2px;
+            transition: height .1s linear;
+        }
+
+        /* ---- Cursor particle trail ---- */
+        .trail-dot {
+            position: fixed; top:0; left:0; width: 8px; height: 8px; border-radius: 50%;
+            pointer-events: none; z-index: 9998; mix-blend-mode: screen;
+            background: radial-gradient(circle, var(--primary), transparent 70%);
+            will-change: transform, opacity;
+        }
+
+        /* ---- Animated gradient heading ---- */
+        .grad-text {
+            background: linear-gradient(90deg, var(--primary), #a855f7, var(--phone-accent), var(--primary));
+            background-size: 300% 100%;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: gradShift 6s linear infinite;
+        }
+        @keyframes gradShift { to { background-position: 300% 0; } }
+
+        /* ---- Tech marquee strip ---- */
+        .marquee {
+            overflow: hidden; white-space: nowrap; width: 100%;
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+                    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            padding: 1.5rem 0; margin-top: 1rem; opacity: .75;
+        }
+        .marquee-track { display: inline-flex; gap: 3.5rem; animation: marquee 28s linear infinite; }
+        .marquee:hover .marquee-track { animation-play-state: paused; }
+        .marquee-track span {
+            font-family: monospace; font-size: 1.05rem; font-weight: 700; letter-spacing: 1px;
+            color: var(--text-muted); display: inline-flex; align-items: center; gap: .5rem;
+        }
+        .marquee-track span::before { content: "◆"; color: var(--primary); font-size: .7rem; }
+        @keyframes marquee { to { transform: translateX(-50%); } }
+
+        /* ---- Portfolio / Album Section ---- */
+        #portfolio { padding: 7rem 2rem 5rem; text-align: center; position: relative; }
+        .album-wrap {
+            position: relative; width: 100%; max-width: 560px; margin: 3.5rem auto 0;
+            height: 460px; perspective: 1800px;
+        }
+        .album-stack {
+            position: relative; width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            touch-action: pan-y;
+        }
+        .album-card {
+            position: absolute; inset: 0; margin: auto;
+            width: 360px; max-width: 86vw; height: 440px;
+            border-radius: 26px; overflow: hidden;
+            transform-style: preserve-3d; will-change: transform, opacity;
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.55);
+            left: 0; right: 0; top: 0; bottom: 0;
+        }
+        .album-thumb {
+            position: relative; height: 56%; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .album-thumb::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%);
+            transform: translateX(-120%); transition: transform .9s;
+        }
+        .album-card.is-front .album-thumb::after { transform: translateX(120%); }
+        .album-thumb .glyph { font-size: 4.2rem; color: #fff; filter: drop-shadow(0 4px 18px rgba(0,0,0,.5)); z-index:2; }
+        .album-body { padding: 1.4rem 1.6rem; text-align: right; }
+        .album-body h3 { font-size: 1.5rem; font-weight: 900; margin-bottom: .4rem; color: var(--text-color); }
+        .album-body p { font-size: .92rem; color: var(--text-muted); line-height: 1.7; }
+        .album-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; justify-content: flex-end; }
+        .album-tags i {
+            font-style: normal; font-family: monospace; font-size: .72rem; padding: .25rem .6rem;
+            border-radius: 30px; border: 1px solid rgba(0,242,255,.3); color: var(--primary);
+            background: rgba(0,242,255,.06);
+        }
+        /* Per-project thumbnail art */
+        .art-1 { background: radial-gradient(circle at 30% 30%, #00f2ff, #0033aa 60%, #05010f); }
+        .art-2 { background: radial-gradient(circle at 70% 40%, #a855f7, #5b1d9e 55%, #0c0118); }
+        .art-3 { background: radial-gradient(circle at 50% 60%, #00ff88, #00795a 60%, #02110b); }
+        .art-4 { background: linear-gradient(135deg, #ff5e62, #ff9966 45%, #1a0608); }
+        .art-5 { background: radial-gradient(circle at 40% 40%, #25D366, #0e6b34 60%, #021207); }
+        .art-6 { background: conic-gradient(from 180deg at 50% 50%, #00f2ff, #a855f7, #ff5e62, #00ff88, #00f2ff); }
+        .album-thumb .mesh {
+            position:absolute; inset:0; opacity:.35; z-index:1;
+            background-image: linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px);
+            background-size: 26px 26px; transform: perspective(300px) rotateX(45deg) scale(1.4); transform-origin: bottom;
+        }
+
+        /* Album controls */
+        .album-controls { display: flex; gap: 1.2rem; align-items: center; justify-content: center; margin-top: 2.4rem; }
+        .album-btn {
+            width: 54px; height: 54px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.03);
+            display:flex; align-items:center; justify-content:center; color: var(--primary);
+            transition: transform .3s, background .3s, box-shadow .3s;
+        }
+        .album-btn:hover { transform: scale(1.1); background: rgba(0,242,255,.1); box-shadow: 0 0 22px rgba(0,242,255,.35); }
+        .album-dots { display:flex; gap:.5rem; }
+        .album-dots .dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.18); transition: all .3s; }
+        .album-dots .dot.active { background: var(--primary); width: 26px; border-radius: 6px; box-shadow: 0 0 12px var(--primary); }
+        .album-hint { margin-top: 1.2rem; font-family: monospace; font-size: .78rem; color: var(--text-muted); opacity:.7; }
+
+        @media (max-width: 600px) {
+            .album-wrap { height: 420px; }
+            .album-card { height: 400px; }
+        }
+
+
+        /* ============================================================
+           🕶️ AR PREVIEW MODULE — Glassmorphism UI
+           ============================================================ */
+
+        /* Header nav link */
+        .nav-ar-link {
+            display: inline-flex; align-items: center; gap: .45rem;
+            font-weight: 700; font-size: .92rem; text-decoration: none;
+            color: var(--text-color);
+            padding: .5rem 1rem; border-radius: 30px;
+            border: 1px solid rgba(0,242,255,.35);
+            background: rgba(0,242,255,.06);
+            transition: all .3s ease;
+            position: relative; overflow: hidden;
+        }
+        .nav-ar-link::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(0,242,255,.25), transparent);
+            transform: translateX(-120%); transition: transform .7s;
+        }
+        .nav-ar-link:hover { color: var(--primary); box-shadow: 0 0 22px rgba(0,242,255,.35); transform: translateY(-2px); }
+        .nav-ar-link:hover::before { transform: translateX(120%); }
+        .nav-ar-link i { width: 16px; height: 16px; }
+
+        /* AR Section */
+        #ar-preview { padding: 7rem 2rem 5rem; text-align: center; position: relative; }
+        .ar-shell {
+            max-width: 760px; margin: 3rem auto 0;
+            border-radius: 28px; padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+                    backdrop-filter: blur(18px) saturate(140%);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+
+        /* Mode tabs */
+        .ar-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .ar-tab {
+            flex: 1 1 200px; min-width: 180px;
+            display: flex; align-items: center; justify-content: center; gap: .7rem;
+            padding: 1.1rem 1rem; border-radius: 18px; font-weight: 700; font-size: 1.05rem;
+            color: var(--text-muted);
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all .35s cubic-bezier(.2,.8,.2,1);
+        }
+        .ar-tab i { width: 22px; height: 22px; }
+        .ar-tab:hover { transform: translateY(-3px); border-color: rgba(0,242,255,.4); }
+        .ar-tab.active {
+            color: #fff; border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(0,242,255,.18), rgba(0,136,204,.1));
+            box-shadow: 0 0 26px rgba(0,242,255,.3);
+        }
+
+        /* Panels with smooth transition */
+        .ar-panel { display: none; animation: arFade .5s ease both; }
+        .ar-panel.active { display: block; }
+        @keyframes arFade { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+        /* Dropzone */
+        .ar-dropzone {
+            border: 2px dashed rgba(0,242,255,.35); border-radius: 20px;
+            padding: 2.4rem 1.5rem; text-align: center; transition: all .3s;
+            background: rgba(0,242,255,.03);
+        }
+        .ar-dropzone.drag { background: rgba(0,242,255,.12); border-color: var(--primary); transform: scale(1.01); }
+        .ar-dropzone i.up-ico { width: 46px; height: 46px; color: var(--primary); margin-bottom: .8rem; }
+        .ar-dropzone p { color: var(--text-muted); font-size: .95rem; }
+        .ar-dropzone .pick {
+            display: inline-block; margin-top: 1rem; padding: .7rem 1.6rem; border-radius: 30px;
+            background: var(--primary); color: #021018; font-weight: 800; font-size: .95rem;
+        }
+
+        /* Preview + dimensions */
+        .ar-preview-box { margin-top: 1.6rem; display: none; }
+        .ar-preview-box.show { display: block; animation: arFade .5s ease both; }
+        .ar-preview-frame {
+            position: relative; display: inline-block; max-width: 100%;
+            border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 16px 40px rgba(0,0,0,.45);
+        }
+        .ar-preview-frame img { display: block; max-width: 100%; max-height: 320px; }
+        .ar-dims { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 1.6rem 0 .4rem; }
+        .ar-dim-field { flex: 1 1 160px; min-width: 150px; text-align: right; }
+        .ar-dim-field label { display: block; font-size: .85rem; color: var(--text-muted); margin-bottom: .4rem; font-weight: 700; }
+        .ar-dim-field .wrap { position: relative; }
+        .ar-dim-field input {
+            width: 100%; padding: .85rem 1rem; border-radius: 14px; font-size: 1.05rem; font-weight: 700;
+            background: var(--input-bg); border: 1px solid rgba(255,255,255,.12); color: var(--text-color);
+            text-align: center; transition: border-color .3s, box-shadow .3s;
+        }
+        .ar-dim-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 16px rgba(0,242,255,.25); }
+        .ar-dim-field .unit { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-family: monospace; font-size: .8rem; }
+        .ar-dim-x { display: flex; align-items: flex-end; padding-bottom: .85rem; color: var(--primary); font-weight: 900; font-size: 1.3rem; }
+        .ar-scale-note { font-family: monospace; font-size: .8rem; color: var(--text-muted); opacity: .8; margin-bottom: 1.4rem; }
+
+        /* Launch button */
+        .ar-launch-btn {
+            display: inline-flex; align-items: center; gap: .7rem;
+            padding: 1rem 2.4rem; border-radius: 40px; font-weight: 800; font-size: 1.1rem;
+            color: #021018; background: linear-gradient(135deg, var(--primary), var(--phone-accent));
+            border: none; transition: transform .3s, box-shadow .3s, opacity .3s;
+            box-shadow: 0 10px 30px rgba(0,242,255,.35);
+        }
+        .ar-launch-btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.03); box-shadow: 0 16px 44px rgba(0,242,255,.5); }
+        .ar-launch-btn:disabled { opacity: .4; filter: grayscale(.6); cursor: not-allowed; }
+        .ar-launch-btn i { width: 22px; height: 22px; }
+
+        /* QR reader */
+        #ar-qr-reader { width: 100%; max-width: 360px; min-height: 300px; margin: 0 auto; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,.12); background: #05060f; }
+        #ar-qr-reader video { width: 100% !important; height: auto !important; border-radius: 18px; display: block; }
+        #ar-qr-reader img { display: none; }   /* hide the library's default info icon */
+        .ar-qr-status { margin-top: 1rem; font-family: monospace; font-size: .85rem; color: var(--text-muted); }
+        .ar-qr-actions { margin-top: 1.2rem; }
+
+        /* Support badge / fallback */
+        .ar-support {
+            margin-top: 1.6rem; display: inline-flex; align-items: center; gap: .5rem;
+            font-family: monospace; font-size: .82rem; padding: .5rem 1rem; border-radius: 30px;
+            border: 1px solid rgba(255,255,255,.12);
+        }
+        .ar-support.ok { color: var(--phone-accent); border-color: rgba(0,255,136,.4); background: rgba(0,255,136,.06); }
+        .ar-support.no { color: #ff5e62; border-color: rgba(255,94,98,.4); background: rgba(255,94,98,.06); }
+        .ar-fallback {
+            display: none; margin-top: 1.4rem; padding: 1.2rem 1.4rem; border-radius: 16px;
+            background: rgba(255,94,98,.08); border: 1px solid rgba(255,94,98,.3);
+            color: #ffb3b5; font-size: .92rem; line-height: 1.8;
+        }
+        .ar-fallback.show { display: block; animation: arFade .4s ease both; }
+
+        /* ===== AR Immersive Overlay (Babylon canvas + HUD) ===== */
+        #ar-overlay {
+            position: fixed; inset: 0; z-index: 5000; display: none;
+            background: #000;
+        }
+        #ar-overlay.show { display: block; }
+        #ar-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+
+        .ar-hud {
+            position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+            z-index: 5010; display: flex; gap: .8rem; padding: .8rem 1rem; border-radius: 50px;
+            background: rgba(10,15,30,.45);
+            -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid rgba(255,255,255,.15);
+            box-shadow: 0 12px 40px rgba(0,0,0,.5);
+        }
+        .ar-hud-btn {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+            color: #fff; transition: transform .25s, background .25s, box-shadow .25s;
+        }
+        .ar-hud-btn i { width: 20px; height: 20px; }
+        .ar-hud-btn span { font-size: .55rem; opacity: .8; }
+        .ar-hud-btn:hover, .ar-hud-btn:active { transform: scale(1.1); background: rgba(0,242,255,.18); box-shadow: 0 0 20px rgba(0,242,255,.4); }
+        .ar-hud-btn.exit { background: rgba(255,94,98,.18); border-color: rgba(255,94,98,.5); }
+
+        .ar-instruction {
+            position: fixed; top: max(24px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+            z-index: 5010; padding: .7rem 1.3rem; border-radius: 30px; text-align: center;
+            background: rgba(10,15,30,.5); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,.15); color: #fff; font-size: .9rem; font-weight: 700;
+            max-width: 90vw; transition: opacity .4s;
+        }
+
+        /* Loading spinner for lazy Babylon/QR load */
+        .ar-loader {
+            position: fixed; inset: 0; z-index: 5020; display: none;
+            align-items: center; justify-content: center; flex-direction: column; gap: 1.2rem;
+            background: rgba(2,2,5,.85); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #fff;
+        }
+        .ar-loader.show { display: flex; }
+        .ar-loader .ring {
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 3px solid rgba(0,242,255,.2); border-top-color: var(--primary);
+            animation: arSpin .8s linear infinite;
+        }
+        @keyframes arSpin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .ar-shell { padding: 1.4rem; }
+            .nav-ar-link span { display: none; }
+            .nav-ar-link { padding: .5rem .7rem; }
+        }
+
+
+        /* ============================================================================
+           📱 COMPLETE MOBILE / RESPONSIVE LAYER
+           Placed last so it overrides earlier rules. Optimises every section for
+           phones & tablets, removes horizontal overflow, and disables the custom
+           desktop cursor on touch devices. (Existing desktop look is untouched.)
+           ============================================================================ */
+
+        /* ---- Global overflow guards ---- */
+        html, body { max-width: 100%; overflow-x: hidden; }
+        img, svg, video, canvas { max-width: 100%; }
+        * { -webkit-tap-highlight-color: transparent; }
+
+        /* ---- Touch devices: drop the custom cursor + trail, restore native cursor ---- */
+        @media (hover: none), (pointer: coarse) {
+            * { cursor: auto !important; }
+            #cursor, #cursor-follower, .trail-dot { display: none !important; }
+            /* Disable heavy hover-only transforms that feel laggy on touch */
+            .tilt-card:hover { transform: none !important; }
+        }
+
+        /* ============================ TABLET & PHONE  (≤ 900px) ============================ */
+        @media (max-width: 900px) {
+            section { padding: 130px 6% 80px; min-height: auto; }
+            #portfolio, #ar-preview { padding: 110px 6% 70px; }
+        }
+
+        /* ============================ PHONE  (≤ 768px) ============================ */
+        @media (max-width: 768px) {
+            /* Navbar */
+            nav.liquid-glass-nav { width: 94%; left: 3%; top: 12px; border-radius: 20px; }
+            .nav-content { padding: .8rem 1rem; }
+            .logo { font-size: 1.1rem; letter-spacing: 1px; }
+            .nav-right { gap: .55rem; }
+
+            /* Typography */
+            h1 { font-size: clamp(2.3rem, 12vw, 3.4rem) !important; margin-bottom: 1.4rem; }
+            section h2, #portfolio h2, #ar-preview h2 { font-size: clamp(1.7rem, 7vw, 2.3rem) !important; }
+            .section-tag { font-size: .75rem; letter-spacing: 2px; }
+            .stat-content h4 { font-size: clamp(2rem, 9vw, 2.8rem) !important; }
+
+            /* Hero buttons & layout */
+            .btn-main { padding: 1rem 2.2rem; font-size: 1rem; }
+            .hero-content > a.hide-mobile { display: none; }
+
+            /* Grids → stacked */
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.4rem; }
+            .services-grid { grid-template-columns: 1fr; gap: 1.3rem; margin-top: 2.4rem; }
+            .stat-content { padding: 1.1rem !important; }
+
+            /* Cards / modals */
+            .lg-content { padding: 2rem 1.4rem; }
+            .gateway-content { width: 94%; max-height: 88vh; }
+            .app-cards { flex-direction: column; gap: 1rem; }
+            .hologram-icon { transform: scale(.8); }
+
+            /* Floating controls — smaller & repositioned so they never overlap */
+            .fab-group { bottom: 16px; right: 14px; gap: 12px; }
+            .fab { width: 58px; height: 58px; }
+            .sound-toggle { bottom: 16px; left: 14px; width: 46px; height: 46px; }
+            .music-toggle { bottom: 16px; left: 70px; width: 46px; height: 46px; }
+
+            /* Portfolio album */
+            .album-wrap { height: 430px; width: 100%; max-width: 92vw; }
+            .album-card { width: 290px; height: 405px; }
+            .album-body h3 { font-size: 1.3rem; }
+            .marquee-track { gap: 2rem; }
+
+            /* AR module */
+            .ar-shell { padding: 1.3rem; border-radius: 22px; }
+            .ar-tabs { gap: .7rem; }
+            .ar-tab { padding: .9rem .6rem; font-size: .95rem; min-width: 140px; }
+            .ar-dropzone { padding: 1.8rem 1rem; }
+            .ar-dims { flex-direction: column; gap: .9rem; }
+            .ar-dim-field { width: 100%; }
+            .ar-dim-x { display: none; }
+            .ar-launch-btn { font-size: 1rem; padding: .9rem 1.8rem; width: 100%; justify-content: center; }
+            #ar-qr-reader { max-width: 100%; }
+
+            /* AR immersive HUD — wrap & shrink so all 6 controls always fit */
+            .ar-hud { gap: .5rem; padding: .6rem .7rem; flex-wrap: wrap; justify-content: center; max-width: 94vw; }
+            .ar-hud-btn { width: 48px; height: 48px; }
+            .ar-instruction { font-size: .82rem; padding: .6rem 1rem; }
+        }
+
+        /* ============================ SMALL PHONE  (≤ 430px) ============================ */
+        @media (max-width: 430px) {
+            section { padding: 115px 5% 64px; }
+            #portfolio, #ar-preview { padding: 100px 5% 60px; }
+            .logo { font-size: 1rem; }
+            .nav-ar-link { padding: .45rem .55rem; }
+            h1 { font-size: clamp(2rem, 13vw, 2.8rem) !important; }
+            .stats-row { gap: .8rem; }
+            .ar-tab { font-size: .88rem; }
+            .ar-hud-btn { width: 44px; height: 44px; }
+            .ar-hud-btn span { font-size: .5rem; }
+            .album-card { width: 86vw; height: 400px; }
+        }
+
+        /* ============================ LANDSCAPE PHONES ============================ */
+        @media (max-height: 480px) and (orientation: landscape) {
+            section { min-height: auto; padding: 100px 6% 50px; }
+            .album-wrap { height: 320px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SVG FILTER FOR LIQUID GLASS DISTORTION -->
+    <svg style="display: none" xmlns="http://www.w3.org/2000/svg">
+        <filter id="liquid-glass-filter" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
+            <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="200" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+
+    <div id="scroll-progress"></div>
+
+    <div id="preloader">
+        <div class="loader-ring"></div>
+        <div class="boot-percent" id="boot-percent">0%</div>
+        <div class="boot-text" id="boot-text"></div>
+    </div>
+
+    <div id="cursor"></div>
+    <div id="cursor-follower"></div>
+    <div id="canvas-container"></div>
+
+    <nav class="liquid-glass-nav">
+        <div class="lg-bend"></div>
+        <div class="lg-face"></div>
+        <div class="lg-edge"></div>
+        <div class="nav-content">
+            <div class="logo">HOSSEIN STUDIO</div>
+            <div class="nav-right">
+                <div style="font-family: monospace; color: var(--primary); font-size: 0.8rem;" class="hide-mobile">
+                    LIQUID_GLASS_v10.0 <span class="status-dot"></span>
+                </div>
+                <a href="#ar-preview" class="nav-ar-link" title="پیش‌نمایش واقعیت افزوده">
+                    <i data-lucide="scan-eye"></i><span>واقعیت افزوده AR</span>
+                </a>
+                <div class="theme-toggle" id="theme-toggle" title="تغییر تم">
+                    <i data-lucide="moon"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sound-toggle" id="sound-toggle" title="صدا">
+        <i data-lucide="volume-2"></i>
+    </div>
+
+    <div class="music-toggle" id="music-toggle" title="موزیک محیطی (با حرکت موس واکنش می‌دهد)">
+        <i data-lucide="music"></i>
+    </div>
+
+    <!-- FAB ACTIONS -->
+    <div class="fab-group">
+        <div class="fab fab-form" onclick="toggleModal('form-modal', true)">
+            <i data-lucide="mail" stroke="white"></i>
+        </div>
+        <div class="fab fab-call" onclick="toggleModal('phone-modal', true)">
+            <i data-lucide="phone" stroke="white"></i>
+        </div>
+    </div>
+
+    <!-- MULTI-APP CONTACT FORM MODAL -->
+    <div id="form-modal" class="gateway-modal">
+        <div class="gateway-overlay" onclick="toggleModal('form-modal', false)"></div>
+        <div class="gateway-content">
+            <div class="liquid-glass-card reveal-anim">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content">
+                    <div class="close-btn" onclick="toggleModal('form-modal', false)"><i data-lucide="x"></i></div>
+                    
+                    <!-- STEP 1: APP SELECTION -->
+                    <div id="app-selection">
+                        <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; text-align:center;">ثبت درخواست پروژه</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; text-align:center;">برای ارسال مشخصات پروژه یکی از اپلیکیشن‌های زیر را انتخاب کنید.</p>
+                        
+                        <div class="app-cards">
+                            <!-- Telegram App Option -->
+                            <div class="app-card tg-card" onclick="openForm('telegram')">
+                                <div class="hologram-icon" style="color: var(--secondary); transform: scale(0.85); margin-bottom: 0; width: 100px; height: 100px;">
+                                    <div class="ripple"></div>
+                                    <div class="ripple" style="animation-delay: 0.8s;"></div>
+                                    <svg viewBox="0 0 496 512" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--secondary));">
+                                        <path class="draw-path" pathLength="100" d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="currentColor"></path>
+                                    </svg>
+                                </div>
+                                <h3>تلگرام</h3>
+                            </div>
+                            
+                            <!-- WhatsApp App Option -->
+                            <div class="app-card wa-card" onclick="openForm('whatsapp')">
+                                <div class="hologram-icon" style="color: var(--wa-accent); transform: scale(0.85); margin-bottom: 0; width: 100px; height: 100px;">
+                                    <div class="ripple"></div>
+                                    <div class="ripple" style="animation-delay: 0.8s;"></div>
+                                    <svg viewBox="0 0 24 24" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--wa-accent));">
+                                        <path class="draw-path" pathLength="100" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" stroke="currentColor" stroke-width="0.4" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <h3>واتساپ</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: FORM & TARGET ID WRAPPER -->
+                    <div id="form-wrapper" style="display: none;">
+                        <div class="back-btn" onclick="goBackToSelection()" title="بازگشت"><i data-lucide="arrow-right"></i></div>
+                        
+                        <!-- Header injected dynamically -->
+                        <div id="platform-header" style="text-align: center; margin-bottom: 2rem;"></div>
+                        
+                        <form id="contact-form" novalidate>
+                            <div class="form-group">
+                                <label>نام و نام خانوادگی</label>
+                                <input type="text" class="form-input" id="f-name" placeholder="مثلاً: حسین محمدی">
+                                <span class="error-msg" id="err-name"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>شماره موبایل</label>
+                                <input type="tel" class="form-input" id="f-phone" placeholder="09123456789" style="direction:ltr; text-align:left;">
+                                <span class="error-msg" id="err-phone"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>توضیحات پروژه</label>
+                                <textarea class="form-input" id="f-msg" placeholder="پروژه خود را شرح دهید..."></textarea>
+                                <span class="error-msg" id="err-msg"></span>
+                            </div>
+                            <button type="submit" class="form-submit">تأیید و انتقال به اپلیکیشن </button>
+                        </form>
+                    </div>
+
+                    <!-- STEP 3: SUCCESS STATE -->
+                    <div class="form-success" id="form-success">
+                        <div class="success-check"><i data-lucide="check" style="width:40px;height:40px;"></i></div>
+                        <h2 style="font-size:1.8rem; margin-bottom:0.8rem;">در حال انتقال...</h2>
+                        <p style="color: var(--text-muted);">فرم شما آماده شد. در حال انتقال به اپلیکیشن جهت ارسال نهایی هستیم. به‌زودی با شما تماس می‌گیریم. 💙</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHONE MODAL -->
+    <div id="phone-modal" class="gateway-modal">
+        <div class="gateway-overlay" onclick="toggleModal('phone-modal', false)"></div>
+        <div class="gateway-content">
+            <div class="liquid-glass-card theme-phone reveal-anim">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content" style="text-align: center;">
+                    <div class="close-btn" onclick="toggleModal('phone-modal', false)"><i data-lucide="x"></i></div>
+                    <div class="hologram-icon" style="color: var(--phone-accent);">
+                        <div class="ripple"></div>
+                        <div class="ripple" style="animation-delay: 0.8s;"></div>
+                        <svg viewBox="0 0 24 24" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--phone-accent));">
+                            <path class="draw-path" pathLength="100" fill-rule="evenodd" clip-rule="evenodd" d="M6 0C4.895 0 4 0.895 4 2v20c0 1.105.895 2 2 2h12c1.105 0 2-.895 2-2V2c0-1.105-.895-2-2-2H6zm-.5 3.5v17h13v-17h-13zM9.5 1.5h3v1h-3v-1zM13.75 2a.25.25 0 1 1 .5 0 .25.25 0 0 1-.5 0zM14.75 2a.25.25 0 1 1 .5 0 .25.25 0 0 1-.5 0zM15.6 2a.4.4 0 1 1 .8 0 .4.4 0 0 1-.8 0zM9.5 21.5h5v1h-5v-1z" stroke="currentColor" stroke-width="0.3" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 2.2rem; margin-bottom: 1rem;">خطوط تماس مستقیم</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">ارتباط تلفنی جهت مشاوره تخصصی و ثبت سفارش سریع:</p>
+                    <div class="phone-list">
+                        <a href="tel:+989218832437" class="contact-item phone-item">
+                            <i data-lucide="phone-call" size="20"></i>
+                            <span>۰۹۲۱ ۸۸۳ ۲۴۳۷</span>
+                        </a>
+                        <a href="tel:+989232572825" class="contact-item phone-item">
+                            <i data-lucide="phone-call" size="20"></i>
+                            <span>۰۹۲۳ ۲۵۷ ۲۸۲۵</span>
+                        </a>
+                        <a href="tel:+98937345649" class="contact-item phone-item">
+                            <i data-lucide="phone-call" size="20"></i>
+                            <span>۰۹۳۷ ۳۴۵ ۵۶۴۹</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN LANDING -->
+    <section>
+        <div class="hero-content">
+            <a href="#portfolio" class="hide-mobile" style="color: var(--text-muted); text-decoration:none; font-weight:700;">نمونه‌کارها</a>
+            <div class="section-tag">// INITIALIZING_CREATIVE_ENGINE</div>
+            <h1><span class="glitch" id="hero-title">HOSSEIN</span><br>DIGITAL STUDIO</h1>
+            <p style="font-size: 1.4rem; color: var(--text-muted); max-width: 800px; margin-bottom: 1rem; border-right: 5px solid var(--primary); padding-right: 25px;">
+                ما با بهره‌گیری از قدرت هوش مصنوعی و هنر گرافیک، هویت بصری کسب‌وکار شما را برای عصر جدید بازآفرینی می‌کنیم. تخصص ما تحول دیجیتال شماست.
+            </p>
+            <button class="btn-main" onclick="toggleModal('form-modal', true)">شروع مشاوره رایگان</button>
+            
+            <div class="stats-row">
+                <div class="liquid-glass-card tilt-card">
+                    <div class="lg-bend"></div>
+                    <div class="lg-face"></div>
+                    <div class="lg-edge"></div>
+                    <div class="lg-content stat-content">
+                        <h4 data-count="250">0</h4>
+                        <p>پروژه موفق</p>
+                    </div>
+                </div>
+                <div class="liquid-glass-card tilt-card">
+                    <div class="lg-bend"></div>
+                    <div class="lg-face"></div>
+                    <div class="lg-edge"></div>
+                    <div class="lg-content stat-content">
+                        <h4 data-count="98">0</h4>
+                        <p>درصد رضایت</p>
+                    </div>
+                </div>
+                <div class="liquid-glass-card tilt-card">
+                    <div class="lg-bend"></div>
+                    <div class="lg-face"></div>
+                    <div class="lg-edge"></div>
+                    <div class="lg-content stat-content">
+                        <h4 data-count="7">0</h4>
+                        <p>سال تجربه</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section>
+        <div class="section-tag">// OUR_CORE_MODULES</div>
+        <h2 style="font-size: 2.5rem; font-weight: 900;">خدمات تخصصی استودیو</h2>
+        <div class="services-grid">
+            <div class="liquid-glass-card reveal tilt-card">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content service-card-content">
+                    <i data-lucide="palette" style="width:36px;height:36px;"></i>
+                    <h3 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 1rem;">طراحی گرافیک</h3>
+                    <p style="color: var(--text-muted);">خلق هویت بصری، بنرهای تبلیغاتی، کارت ویزیت و متریال‌های چاپی با استانداردهای جهانی و دقت هنری بالا.</p>
+                </div>
+            </div>
+            
+            <div class="liquid-glass-card reveal tilt-card">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content service-card-content">
+                    <i data-lucide="cpu" style="width:36px;height:36px;"></i>
+                    <h3 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 1rem;">هوش مصنوعی</h3>
+                    <p style="color: var(--text-muted);">استفاده از الگوریتم‌های پیشرفته پردازش تصویر برای تولید محتوای بصری هوشمند و اختصاصی برند شما.</p>
+                </div>
+            </div>
+
+            <div class="liquid-glass-card reveal tilt-card">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content service-card-content">
+                    <i data-lucide="globe" style="width:36px;height:36px;"></i>
+                    <h3 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 1rem;">خدمات دیجیتال</h3>
+                    <p style="color: var(--text-muted);">توسعه وب‌سایت‌های مدرن، ارائه‌های حرفه‌ای، امور آنلاین و مدیریت صفر تا صد پروژه‌های تخصصی.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ PORTFOLIO / ALBUM ============ -->
+    <section id="portfolio">
+        <div class="section-tag">// SHOWCASE_ARCHIVE</div>
+        <h2 style="font-size: 2.6rem; font-weight: 900;">نمونه‌<span class="grad-text">کارها</span></h2>
+        <p style="color: var(--text-muted); max-width: 520px; margin: 1rem auto 0;">
+            با موس روی کارت‌ها بکشید، اسکرول کنید یا از دکمه‌ها استفاده کنید تا پروژه‌ها را مثل یک آلبوم ورق بزنید.
+        </p>
+
+        <div class="album-wrap">
+            <div class="album-stack" id="album-stack">
+
+                <div class="album-card" data-i="0">
+                    <div class="album-thumb art-1"><div class="mesh"></div><i data-lucide="palette" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>هویت بصری برند نئون</h3>
+                        <p>طراحی لوگو، پکیج رنگی و سیستم گرافیکی کامل برای یک استارتاپ فناوری.</p>
+                        <div class="album-tags"><i>Branding</i><i>Logo</i><i>Identity</i></div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-i="1">
+                    <div class="album-thumb art-2"><div class="mesh"></div><i data-lucide="brain-circuit" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>پلتفرم هوش مصنوعی</h3>
+                        <p>داشبورد تحلیلی مبتنی بر هوش مصنوعی با تولید محتوا و تصویرسازی خودکار.</p>
+                        <div class="album-tags"><i>AI</i><i>SaaS</i><i>Dashboard</i></div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-i="2">
+                    <div class="album-thumb art-3"><div class="mesh"></div><i data-lucide="layout-template" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>وب‌سایت فروشگاهی</h3>
+                        <p>فروشگاه آنلاین واکنش‌گرا با تجربه کاربری روان و درگاه پرداخت یکپارچه.</p>
+                        <div class="album-tags"><i>E-Commerce</i><i>UI/UX</i><i>Web</i></div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-i="3">
+                    <div class="album-thumb art-4"><div class="mesh"></div><i data-lucide="clapperboard" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>تیزر تبلیغاتی موشن</h3>
+                        <p>موشن‌گرافیک و تدوین حرفه‌ای برای کمپین معرفی محصول در شبکه‌های اجتماعی.</p>
+                        <div class="album-tags"><i>Motion</i><i>Video</i><i>Ads</i></div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-i="4">
+                    <div class="album-thumb art-5"><div class="mesh"></div><i data-lucide="smartphone" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>اپلیکیشن موبایل</h3>
+                        <p>طراحی رابط کاربری اپ موبایل با میکرو-انیمیشن و حالت تاریک/روشن.</p>
+                        <div class="album-tags"><i>Mobile</i><i>App</i><i>Prototype</i></div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-i="5">
+                    <div class="album-thumb art-6"><div class="mesh"></div><i data-lucide="sparkles" class="glyph"></i></div>
+                    <div class="album-body">
+                        <h3>آثار هنری مولد</h3>
+                        <p>تولید مجموعه‌ای از تصاویر هنری با هوش مصنوعی برای نمایشگاه دیجیتال.</p>
+                        <div class="album-tags"><i>Generative</i><i>Art</i><i>NFT</i></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="album-controls">
+            <div class="album-btn" id="album-prev" title="قبلی"><i data-lucide="chevron-right"></i></div>
+            <div class="album-dots" id="album-dots"></div>
+            <div class="album-btn" id="album-next" title="بعدی"><i data-lucide="chevron-left"></i></div>
+        </div>
+        <div class="album-hint">// DRAG &amp; SCROLL TO FLIP</div>
+
+        <div class="marquee">
+            <div class="marquee-track">
+                <span>Photoshop</span><span>Illustrator</span><span>After Effects</span><span>Figma</span>
+                <span>Midjourney</span><span>GPT-4</span><span>Premiere</span><span>Blender</span><span>React</span>
+                <span>Photoshop</span><span>Illustrator</span><span>After Effects</span><span>Figma</span>
+                <span>Midjourney</span><span>GPT-4</span><span>Premiere</span><span>Blender</span><span>React</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ AR PREVIEW SECTION ============ -->
+    <section id="ar-preview">
+        <div class="section-tag">// AUGMENTED_REALITY_ENGINE</div>
+        <h2 style="font-size: 2.6rem; font-weight: 900;">پیش‌نمایش <span class="grad-text">واقعیت افزوده</span></h2>
+        <p style="color: var(--text-muted); max-width: 560px; margin: 1rem auto 0;">
+            طرح‌های گرافیکی، بنر، بیلبورد، پوستر و تابلو را <b>قبل از چاپ</b> با ابعاد واقعی در محیط اطراف خود ببینید.
+        </p>
+
+        <div class="ar-shell">
+            <!-- Mode tabs -->
+            <div class="ar-tabs">
+                <div class="ar-tab active" data-mode="upload"><i data-lucide="upload-cloud"></i> بارگذاری فایل</div>
+                <div class="ar-tab" data-mode="qr"><i data-lucide="qr-code"></i> اسکن QR Code</div>
+            </div>
+
+            <!-- ===== Upload panel ===== -->
+            <div class="ar-panel active" id="ar-panel-upload">
+                <div class="ar-dropzone" id="ar-dropzone">
+                    <i data-lucide="image-plus" class="up-ico"></i>
+                    <p>فایل طرح خود را اینجا رها کنید یا انتخاب نمایید<br>
+                        <small style="opacity:.7">فرمت‌های مجاز: JPG • JPEG • PNG • WEBP</small></p>
+                    <label class="pick" for="ar-file-input">انتخاب فایل</label>
+                    <input type="file" id="ar-file-input" accept="image/jpeg,image/jpg,image/png,image/webp" hidden>
+                </div>
+
+                <div class="ar-preview-box" id="ar-preview-box">
+                    <div class="ar-preview-frame"><img id="ar-preview-img" alt="پیش‌نمایش طرح"></div>
+
+                    <div class="ar-dims">
+                        <div class="ar-dim-field">
+                            <label>عرض</label>
+                            <div class="wrap"><input type="number" id="ar-width" min="1" max="2000" value="100" inputmode="numeric"><span class="unit">cm</span></div>
+                        </div>
+                        <div class="ar-dim-x">×</div>
+                        <div class="ar-dim-field">
+                            <label>ارتفاع</label>
+                            <div class="wrap"><input type="number" id="ar-height" min="1" max="2000" value="200" inputmode="numeric"><span class="unit">cm</span></div>
+                        </div>
+                    </div>
+                    <div class="ar-scale-note" id="ar-scale-note">// REAL SCALE: 1.00m × 2.00m</div>
+
+                    <button class="ar-launch-btn" id="ar-launch-btn" disabled>
+                        <i data-lucide="scan-eye"></i> نمایش در واقعیت افزوده
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== QR panel ===== -->
+            <div class="ar-panel" id="ar-panel-qr">
+                <div id="ar-qr-reader"></div>
+                <p class="ar-qr-status" id="ar-qr-status">// برای فعال‌سازی دوربین و اسکن، دکمه زیر را بزنید</p>
+                <div class="ar-qr-actions">
+                    <button class="ar-launch-btn" id="ar-qr-start" style="font-size:1rem; padding:.8rem 1.8rem;">
+                        <i data-lucide="scan-line"></i> شروع اسکن QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Support status / fallback -->
+            <div class="ar-support" id="ar-support"><i data-lucide="loader"></i> در حال بررسی پشتیبانی AR...</div>
+            <div class="ar-fallback" id="ar-fallback">
+                <b>دستگاه شما از واقعیت افزوده پشتیبانی نمی‌کند.</b><br>
+                برای استفاده از این قابلیت، با مرورگر Chrome یا Samsung Internet روی یک گوشی اندرویدی سازگار با ARCore
+                (یا iPhone با مرورگر پشتیبان WebXR) باز کنید. پیش‌نمایش دو بعدی همچنان در دسترس است.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== AR Immersive Overlay (Babylon canvas + HUD controls) ===== -->
+    <div id="ar-overlay">
+        <canvas id="ar-canvas"></canvas>
+        <div class="ar-instruction" id="ar-instruction">سطح صاف را پیدا کنید و برای قرار دادن طرح، روی صفحه ضربه بزنید</div>
+        <div class="ar-hud">
+            <button class="ar-hud-btn" id="ar-reset" title="بازنشانی موقعیت"><i data-lucide="crosshair"></i><span>ریست</span></button>
+            <button class="ar-hud-btn" id="ar-rotate" title="چرخش ۹۰ درجه"><i data-lucide="rotate-cw"></i><span>۹۰°</span></button>
+            <button class="ar-hud-btn" id="ar-scale-down" title="کوچک‌تر"><i data-lucide="minus"></i><span>کوچک</span></button>
+            <button class="ar-hud-btn" id="ar-scale-up" title="بزرگ‌تر"><i data-lucide="plus"></i><span>بزرگ</span></button>
+            <button class="ar-hud-btn" id="ar-fullscreen" title="تمام‌صفحه"><i data-lucide="maximize"></i><span>تمام</span></button>
+            <button class="ar-hud-btn exit" id="ar-exit" title="خروج از AR"><i data-lucide="x"></i><span>خروج</span></button>
+        </div>
+    </div>
+
+    <!-- AR lazy-load spinner -->
+    <div class="ar-loader" id="ar-loader">
+        <div class="ring"></div>
+        <div id="ar-loader-text" style="font-family:monospace; font-size:.9rem;">// LOADING AR ENGINE...</div>
+    </div>
+
+    <footer>
+        <p>© HOSSEIN DIGITAL STUDIO | ALL SYSTEMS ENCRYPTED & OPERATIONAL</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        /* ============ SOUND ENGINE ============ */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playTone(freq, duration = 0.08, type = 'sine', vol = 0.15) {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sounds = {
+            hover: () => playTone(880, 0.05, 'sine', 0.04),
+            click: () => playTone(440, 0.1, 'triangle', 0.12),
+            open:  () => { playTone(523, 0.08, 'sine', 0.1); setTimeout(()=>playTone(784,0.1,'sine',0.1),70); },
+            close: () => { playTone(440, 0.08, 'sine', 0.1); setTimeout(()=>playTone(330,0.1,'sine',0.1),70); },
+            success: () => {
+                playTone(523,0.1,'sine',0.12);
+                setTimeout(()=>playTone(659,0.1,'sine',0.12),100);
+                setTimeout(()=>playTone(784,0.1,'sine',0.12),200);
+                setTimeout(()=>playTone(1047,0.2,'sine',0.12),300);
+            },
+            error: () => { playTone(200,0.15,'sawtooth',0.1); setTimeout(()=>playTone(150,0.2,'sawtooth',0.1),100); }
+        };
+
+        document.body.addEventListener('click', initAudio, { once: true });
+
+        const soundToggle = document.getElementById('sound-toggle');
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.innerHTML = soundEnabled ? '<i data-lucide="volume-2"></i>' : '<i data-lucide="volume-x"></i>';
+            lucide.createIcons();
+            if (soundEnabled) sounds.click();
+        });
+
+        /* ============ THEME TOGGLE ============ */
+        const themeToggle = document.getElementById('theme-toggle');
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            themeToggle.innerHTML = '<i data-lucide="sun"></i>';
+            lucide.createIcons();
+        }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeToggle.innerHTML = isLight ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+            lucide.createIcons();
+            sounds.click();
+            updateThreeColors(isLight);
+        });
+
+        /* ============ MULTI-APP FORM LOGIC ============ */
+        let selectedPlatform = '';
+        const targetPhone = "989218832437";
+
+        const headers = {
+            telegram: `
+                <div class="hologram-icon" style="color: var(--secondary); width: 80px; height: 80px; margin: 0 auto 1rem;">
+                    <div class="ripple"></div>
+                    <div class="ripple" style="animation-delay: 0.8s;"></div>
+                    <svg viewBox="0 0 496 512" style="width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--secondary));">
+                        <path class="draw-path" pathLength="100" d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.5rem;">ارسال در تلگرام</h2>
+                <p style="color: var(--secondary); font-family: monospace; direction: ltr;">+98 921 883 2437</p>
+            `,
+            whatsapp: `
+                <div class="hologram-icon" style="color: var(--wa-accent); width: 80px; height: 80px; margin: 0 auto 1rem;">
+                    <div class="ripple"></div>
+                    <div class="ripple" style="animation-delay: 0.8s;"></div>
+                    <svg viewBox="0 0 24 24" style="width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--wa-accent));">
+                        <path class="draw-path" pathLength="100" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" stroke="currentColor" stroke-width="0.4" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.5rem;">ارسال در واتساپ</h2>
+                <p style="color: var(--wa-accent); font-family: monospace; direction: ltr;">+98 921 883 2437</p>
+            `
+        };
+
+        function openForm(platform) {
+            selectedPlatform = platform;
+            sounds.click();
+            document.getElementById('platform-header').innerHTML = headers[platform];
+            
+            gsap.to('#app-selection', { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+                document.getElementById('app-selection').style.display = 'none';
+                document.getElementById('form-wrapper').style.display = 'block';
+                gsap.fromTo('#form-wrapper', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
+            }});
+        }
+
+        function goBackToSelection() {
+            sounds.click();
+            gsap.to('#form-wrapper', { opacity: 0, y: 20, duration: 0.3, onComplete: () => {
+                document.getElementById('form-wrapper').style.display = 'none';
+                document.getElementById('app-selection').style.display = 'block';
+                gsap.fromTo('#app-selection', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 });
+            }});
+        }
+
+        /* ============ CONTACT FORM VALIDATION & REDIRECT ============ */
+        const form = document.getElementById('contact-form');
+        function setError(input, errEl, msg) {
+            input.classList.add('invalid');
+            document.getElementById(errEl).textContent = msg;
+        }
+        function clearError(input, errEl) {
+            input.classList.remove('invalid');
+            document.getElementById(errEl).textContent = '';
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let valid = true;
+            const name = document.getElementById('f-name');
+            const phone = document.getElementById('f-phone');
+            const msg = document.getElementById('f-msg');
+
+            if (name.value.trim().length < 3) {
+                setError(name, 'err-name', 'نام باید حداقل ۳ حرف باشد.');
+                valid = false;
+            } else clearError(name, 'err-name');
+
+            const phoneRegex = /^09\d{9}$/;
+            if (!phoneRegex.test(phone.value.trim())) {
+                setError(phone, 'err-phone', 'شماره معتبر نیست (مثال: 09123456789).');
+                valid = false;
+            } else clearError(phone, 'err-phone');
+
+            if (msg.value.trim().length < 10) {
+                setError(msg, 'err-msg', 'توضیحات باید حداقل ۱۰ حرف باشد.');
+                valid = false;
+            } else clearError(msg, 'err-msg');
+
+            if (valid) {
+                const textMsg = `درخواست پروژه جدید\n\n👤 نام: ${name.value.trim()}\n📱 موبایل: ${phone.value.trim()}\n📝 توضیحات:\n${msg.value.trim()}`;
+                let url = '';
+                
+                if(selectedPlatform === 'whatsapp') {
+                    url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(textMsg)}`;
+                } else if(selectedPlatform === 'telegram') {
+                    url = `https://t.me/+${targetPhone}?text=${encodeURIComponent(textMsg)}`;
+                }
+
+                window.open(url, '_blank');
+
+                sounds.success();
+                gsap.to('#form-wrapper', { opacity: 0, y: -20, duration: 0.4, onComplete: () => {
+                    document.getElementById('form-wrapper').style.display = 'none';
+                    const success = document.getElementById('form-success');
+                    success.style.display = 'block';
+                    lucide.createIcons();
+                    gsap.from(success, { opacity: 0, scale: 0.8, duration: 0.5, ease: "back.out(1.7)" });
+                }});
+                
+                form.reset();
+                setTimeout(() => toggleModal('form-modal', false), 4000);
+            } else {
+                sounds.error();
+            }
+        });
+
+        ['f-name','f-phone','f-msg'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                this.classList.remove('invalid');
+            });
+        });
+
+        /* ============ PRELOADER ============ */
+        const bootLines = ["> BOOTING NEURAL CORE...","> LOADING GRAPHICS ENGINE...","> CONNECTING TO AI MODULES...","> SYSTEM READY ✓"];
+        let percent = 0;
+        const bootTextEl = document.getElementById('boot-text');
+        const bootPercentEl = document.getElementById('boot-percent');
+        const bootInterval = setInterval(() => {
+            percent += Math.floor(Math.random() * 8) + 3;
+            if (percent > 100) percent = 100;
+            bootPercentEl.textContent = percent + '%';
+            bootTextEl.textContent = bootLines[Math.min(Math.floor(percent / 26), bootLines.length - 1)];
+            if (percent >= 100) {
+                clearInterval(bootInterval);
+                setTimeout(() => {
+                    document.getElementById('preloader').classList.add('hidden');
+                    startHeroAnimations();
+                }, 500);
+            }
+        }, 120);
+
+        /* ============ SCROLL PROGRESS ============ */
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            document.getElementById('scroll-progress').style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+        });
+
+        /* ============ CURSOR ============ */
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursor-follower');
+        
+        gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+        gsap.set(follower, { xPercent: -50, yPercent: -50 });
+
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to(follower, { x: e.clientX, y: e.clientY, duration: 0.15 });
+        });
+
+        function bindInteractive() {
+            document.querySelectorAll('a, button, .fab, .close-btn, .back-btn, .contact-item, .app-card, .tilt-card, .theme-toggle, .sound-toggle, .form-input').forEach(el => {
+                if (el.dataset.bound) return;
+                el.dataset.bound = "1";
+                el.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover-active');
+                    follower.classList.add('hover-active');
+                    sounds.hover();
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover-active');
+                    follower.classList.remove('hover-active');
+                });
+            });
+        }
+        bindInteractive();
+
+        document.querySelectorAll('button, a, .fab, .theme-toggle').forEach(el => {
+            el.addEventListener('click', () => sounds.click());
+        });
+
+        /* ============ MAGNETIC BUTTONS ============ */
+        document.querySelectorAll('.btn-main, .fab').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                gsap.to(btn, { x: (e.clientX - rect.left - rect.width/2)*0.4, y: (e.clientY - rect.top - rect.height/2)*0.4, duration: 0.4 });
+            });
+            btn.addEventListener('mouseleave', () => gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.3)" }));
+        });
+
+        /* ============ 3D TILT ============ */
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left)/rect.width - 0.5;
+                const y = (e.clientY - rect.top)/rect.height - 0.5;
+                gsap.to(card, { rotationY: x*12, rotationX: -y*12, transformPerspective: 900, duration: 0.4, ease: "power2.out" });
+            });
+            card.addEventListener('mouseleave', () => gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.6, ease: "power2.out" }));
+        });
+
+        /* ============ MODAL TOGGLE ============ */
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
+            if(show) {
+                initAudio();
+                sounds.open();
+                modal.style.display = 'flex';
+                gsap.to(modal, { opacity: 1, duration: 0.4 });
+                gsap.from(modal.querySelector('.reveal-anim'), { scale: 0.85, y: 60, opacity: 0, duration: 0.7, ease: "expo.out" });
+                
+                if (id === 'form-modal') {
+                    document.getElementById('app-selection').style.display = 'block';
+                    document.getElementById('form-wrapper').style.display = 'none';
+                    document.getElementById('form-success').style.display = 'none';
+                    gsap.set('#app-selection', { opacity: 1, y: 0 });
+                }
+            } else {
+                sounds.close();
+                gsap.to(modal, { opacity: 0, duration: 0.3, onComplete: () => modal.style.display = 'none' });
+            }
+        }
+
+        /* ============ THREE.JS ============ */
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const sphereMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true, transparent: true, opacity: 0.12 });
+        const scleraMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true, transparent: true, opacity: 0.1 });
+        const irisMat = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true, transparent: true, opacity: 0.25 });
+        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true, transparent: true, opacity: 0.4 });
+        const haloMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.15 });
+        const particlesMat = new THREE.PointsMaterial({ size: 0.008, color: 0x00f2ff });
+
+        const sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(2.5, 2), sphereMat);
+        scene.add(sphere);
+
+        const eyeGroup = new THREE.Group();
+        const sclera = new THREE.Mesh(new THREE.SphereGeometry(1.6, 24, 12), scleraMat);
+        sclera.scale.set(1, 0.35, 0.7);
+        eyeGroup.add(sclera);
+
+        const iris = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.03, 16, 64), irisMat);
+        eyeGroup.add(iris);
+
+        const pupil = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25, 1), pupilMat);
+        eyeGroup.add(pupil);
+
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.01, 8, 64), haloMat);
+        halo.scale.set(1, 0.35, 1);
+        eyeGroup.add(halo);
+
+        scene.add(eyeGroup);
+
+        const particles = new THREE.Points(
+            new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(2800 * 3).map(() => (Math.random() - 0.5) * 22), 3)),
+            particlesMat
+        );
+        scene.add(particles);
+
+        const techTexts = ["E = mc²", "iℏ(∂Ψ/∂t) = ĤΨ", "∇ × B = μ₀J + με₀(∂E/∂t)", "F = G(m₁m₂)/r²", "S = k·log(W)", "e^(iπ) + 1 = 0", "ΔxΔp ≥ ℏ/2", "01001000 01001111", "01010011 01010011", "10110101 11010010", "PV = nRT"];
+        function createTechTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'transparent'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = 'bold 50px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10; ctx.fillStyle = '#ffffff';
+            ctx.fillText(text, 512, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.minFilter = THREE.LinearFilter;
+            return tex;
+        }
+
+        const techTextures = techTexts.map(createTechTexture);
+        const techSpriteGroup = new THREE.Group();
+        const techMaterials = [];
+
+        for (let i = 0; i < 70; i++) {
+            const tex = techTextures[Math.floor(Math.random() * techTextures.length)];
+            const mat = new THREE.SpriteMaterial({ map: tex, color: 0x00f2ff, transparent: true, opacity: Math.random() * 0.25 + 0.05, depthWrite: false, blending: THREE.AdditiveBlending });
+            techMaterials.push(mat);
+            const sprite = new THREE.Sprite(mat);
+            sprite.position.set((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50, (Math.random() * -20) - 8);
+            const scaleFactor = Math.random() * 1.5 + 0.5;
+            sprite.scale.set(8 * scaleFactor, 1 * scaleFactor, 1);
+            sprite.userData = { velocity: new THREE.Vector3((Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.015, 0) };
+            techSpriteGroup.add(sprite);
+        }
+        scene.add(techSpriteGroup);
+
+        function updateThreeColors(isLight) {
+            const primaryColor = isLight ? 0x0088cc : 0x00f2ff;
+            const accentColor = isLight ? 0x0088cc : 0x00ff88;
+            sphereMat.color.setHex(primaryColor);
+            particlesMat.color.setHex(primaryColor);
+            sphereMat.opacity = isLight ? 0.18 : 0.12;
+            scleraMat.color.setHex(primaryColor);
+            pupilMat.color.setHex(primaryColor);
+            haloMat.color.setHex(primaryColor);
+            irisMat.color.setHex(accentColor);
+            techMaterials.forEach(mat => mat.color.setHex(primaryColor));
+        }
+        updateThreeColors(document.body.classList.contains('light-mode'));
+
+        camera.position.z = 6;
+        let targetX = 0, targetY = 0;
+        document.addEventListener('mousemove', (e) => {
+            targetX = (e.clientX / window.innerWidth - 0.5);
+            targetY = (e.clientY / window.innerHeight - 0.5);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            sphere.rotation.y += 0.0025; sphere.rotation.x += 0.001;
+            particles.rotation.y -= 0.0004;
+            iris.rotation.z -= 0.01;
+            pupil.rotation.y += 0.02; pupil.rotation.x -= 0.01;
+            halo.rotation.z += 0.005;
+
+            eyeGroup.rotation.y += (targetX * 1.5 - eyeGroup.rotation.y) * 0.05;
+            eyeGroup.rotation.x += (-targetY * 1.5 - eyeGroup.rotation.x) * 0.05;
+
+            camera.position.x += (targetX * 1.0 - camera.position.x) * 0.05;
+            camera.position.y += (-targetY * 1.0 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            techSpriteGroup.children.forEach(sprite => {
+                sprite.position.add(sprite.userData.velocity);
+                if(sprite.position.x > 30) sprite.position.x = -30;
+                if(sprite.position.x < -30) sprite.position.x = 30;
+                if(sprite.position.y > 30) sprite.position.y = -30;
+                if(sprite.position.y < -30) sprite.position.y = 30;
+            });
+            techSpriteGroup.rotation.y -= 0.0005;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        /* ============ HERO + SCROLL ANIMATIONS ============ */
+        gsap.registerPlugin(ScrollTrigger);
+        function startHeroAnimations() {
+            gsap.from(".hero-content > *", { opacity: 0, y: 60, stagger: 0.15, duration: 1.2, ease: "power4.out" });
+            const title = document.getElementById('hero-title');
+            const text = "HOSSEIN";
+            title.textContent = "";
+            let i = 0;
+            const cursorSpan = document.createElement('span');
+            cursorSpan.className = 'typed-cursor';
+            title.after(cursorSpan);
+            const typeInt = setInterval(() => {
+                title.textContent += text[i]; i++;
+                if (i >= text.length) { clearInterval(typeInt); setTimeout(() => cursorSpan.remove(), 1000); }
+            }, 130);
+
+            document.querySelectorAll('[data-count]').forEach(el => {
+                const target = +el.getAttribute('data-count');
+                ScrollTrigger.create({
+                    trigger: el, start: "top 90%", once: true,
+                    onEnter: () => gsap.to(el, {
+                        innerText: target, duration: 2, snap: { innerText: 1 }, ease: "power2.out",
+                        onUpdate: function() { el.textContent = Math.floor(el.innerText) + (target === 98 ? '%' : '+'); }
+                    })
+                });
+            });
+        }
+
+
+        /* ============================================================
+           🎵 GENERATIVE MOUSE-REACTIVE AMBIENT MUSIC ENGINE
+           ============================================================ */
+        const Music = (() => {
+            let started = false, playing = false;
+            let master, filter, delay, fbGain, wet, analyser, padOsc = [], padGain, arpTimer, lfo;
+            const scale = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25, 622.25, 698.46]; // C minor pentatonic-ish
+            const freqData = new Uint8Array(64);
+
+            // mouse state (normalized 0..1) + velocity
+            let mx = 0.5, my = 0.5, vel = 0, lastX = null, lastY = null;
+            window.addEventListener('mousemove', (e) => {
+                mx = e.clientX / window.innerWidth;
+                my = e.clientY / window.innerHeight;
+                if (lastX !== null) {
+                    const d = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+                    vel = Math.min(1, vel * 0.7 + d * 0.012);
+                }
+                lastX = e.clientX; lastY = e.clientY;
+            }, { passive: true });
+
+            function build() {
+                initAudio();
+                const ctx = audioCtx;
+                master = ctx.createGain();  master.gain.value = 0.0;
+                master.connect(ctx.destination);
+
+                analyser = ctx.createAnalyser(); analyser.fftSize = 128;
+                master.connect(analyser);
+
+                filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass'; filter.frequency.value = 700; filter.Q.value = 6;
+                filter.connect(master);
+
+                // feedback delay for spacious "reverb-ish" tail
+                delay = ctx.createDelay(); delay.delayTime.value = 0.42;
+                fbGain = ctx.createGain(); fbGain.gain.value = 0.42;
+                wet = ctx.createGain(); wet.gain.value = 0.45;
+                filter.connect(delay); delay.connect(fbGain); fbGain.connect(delay);
+                delay.connect(wet); wet.connect(master);
+
+                // sustained pad chord (detuned saw/triangle)
+                padGain = ctx.createGain(); padGain.gain.value = 0.18; padGain.connect(filter);
+                const chord = [130.81, 196.00, 233.08]; // Cm-ish low pad
+                chord.forEach((f, i) => {
+                    const o = ctx.createOscillator();
+                    o.type = i === 0 ? 'triangle' : 'sawtooth';
+                    o.frequency.value = f;
+                    o.detune.value = (i - 1) * 7;
+                    const g = ctx.createGain(); g.gain.value = 0.33;
+                    o.connect(g); g.connect(padGain); o.start();
+                    padOsc.push(o);
+                });
+
+                // slow LFO modulating pad volume (breathing)
+                lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
+                const lfoGain = ctx.createGain(); lfoGain.gain.value = 0.06;
+                lfo.connect(lfoGain); lfoGain.connect(padGain.gain); lfo.start();
+            }
+
+            function pluck(freq, vol) {
+                const ctx = audioCtx;
+                const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+                const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.value = freq * 2; o2.detune.value = 4;
+                const g = ctx.createGain();
+                g.gain.setValueAtTime(0, ctx.currentTime);
+                g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.6);
+                o.connect(g); o2.connect(g); g.connect(filter);
+                o.start(); o2.start();
+                o.stop(ctx.currentTime + 1.7); o2.stop(ctx.currentTime + 1.7);
+            }
+
+            function scheduleArp() {
+                if (!playing) return;
+                // movement makes the arpeggio livelier & brighter
+                if (Math.random() < 0.35 + vel * 0.55) {
+                    const idx = Math.min(scale.length - 1, Math.floor(my * scale.length));
+                    const note = scale[(idx + Math.floor(Math.random() * 3)) % scale.length];
+                    pluck(note, 0.06 + vel * 0.10);
+                }
+                const interval = 520 - vel * 300; // faster when moving
+                arpTimer = setTimeout(scheduleArp, interval);
+            }
+
+            function loop() {
+                if (!playing) return;
+                vel *= 0.92;
+                const ctx = audioCtx;
+                // mouse X -> brightness (filter cutoff), mouse Y -> resonance, velocity -> shimmer
+                const cutoff = 350 + mx * 3200 + vel * 2500;
+                filter.frequency.setTargetAtTime(cutoff, ctx.currentTime, 0.15);
+                filter.Q.setTargetAtTime(3 + (1 - my) * 9, ctx.currentTime, 0.2);
+                wet.gain.setTargetAtTime(0.3 + my * 0.4, ctx.currentTime, 0.3);
+                // visualizer
+                analyser.getByteFrequencyData(freqData);
+                updateEq(freqData);
+                requestAnimationFrame(loop);
+            }
+
+            function toggle() {
+                if (!started) { build(); started = true; }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                playing = !playing;
+                const t = audioCtx.currentTime;
+                master.gain.cancelScheduledValues(t);
+                master.gain.setTargetAtTime(playing ? 0.32 : 0.0, t, playing ? 1.2 : 0.5);
+                if (playing) { scheduleArp(); loop(); }
+                return playing;
+            }
+            return { toggle, isPlaying: () => playing };
+        })();
+
+        // EQ bars inside the music button
+        const eqWrap = document.createElement('div');
+        eqWrap.className = 'eq';
+        eqWrap.innerHTML = '<span></span><span></span><span></span><span></span>';
+        function updateEq(data) {
+            const bars = eqWrap.querySelectorAll('span');
+            const slices = [4, 10, 18, 30];
+            bars.forEach((b, i) => {
+                const v = data[slices[i]] || 0;
+                b.style.height = (4 + (v / 255) * 18) + 'px';
+            });
+        }
+
+        const musicToggle = document.getElementById('music-toggle');
+        musicToggle.addEventListener('click', () => {
+            initAudio();
+            const on = Music.toggle();
+            musicToggle.classList.toggle('playing', on);
+            if (on) {
+                musicToggle.innerHTML = '';
+                musicToggle.appendChild(eqWrap);
+            } else {
+                musicToggle.innerHTML = '<i data-lucide="music"></i>';
+                lucide.createIcons();
+            }
+            if (typeof sounds !== 'undefined') sounds.click && sounds.click();
+        });
+
+        /* ============================================================
+           🎴 PORTFOLIO ALBUM — card-flip deck (drag / scroll / buttons)
+           ============================================================ */
+        (() => {
+            const stack = document.getElementById('album-stack');
+            if (!stack) return;
+            const cards = Array.from(stack.querySelectorAll('.album-card'));
+            const total = cards.length;
+            let order = cards.map((_, i) => i);   // order[0] = front
+            const dotsWrap = document.getElementById('album-dots');
+            cards.forEach((_, i) => {
+                const d = document.createElement('div'); d.className = 'dot'; dotsWrap.appendChild(d);
+            });
+            const dots = Array.from(dotsWrap.children);
+
+            function render(animate = true) {
+                order.forEach((cardIdx, pos) => {
+                    const card = cards[cardIdx];
+                    const visible = pos < 5;
+                    card.classList.toggle('is-front', pos === 0);
+                    gsap.to(card, {
+                        zIndex: total - pos,
+                        y: -pos * 16,
+                        z: -pos * 80,
+                        rotateZ: pos === 0 ? 0 : (pos % 2 ? 1 : -1) * (2 + pos),
+                        scale: 1 - pos * 0.05,
+                        opacity: visible ? 1 : 0,
+                        duration: animate ? 0.55 : 0,
+                        ease: 'power3.out'
+                    });
+                });
+                const frontIdx = order[0];
+                dots.forEach((d, i) => d.classList.toggle('active', i === frontIdx));
+            }
+
+            function next() {
+                const front = cards[order[0]];
+                gsap.to(front, { x: -120, rotateY: -35, opacity: 0, duration: 0.35, ease: 'power2.in',
+                    onComplete: () => { gsap.set(front, { x: 0, rotateY: 0 }); order.push(order.shift()); render(); }
+                });
+                if (typeof sounds !== 'undefined' && sounds.hover) sounds.hover();
+            }
+            function prev() {
+                order.unshift(order.pop());
+                const front = cards[order[0]];
+                gsap.fromTo(front, { x: -120, rotateY: -35, opacity: 0 }, { x: 0, rotateY: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+                render();
+                if (typeof sounds !== 'undefined' && sounds.hover) sounds.hover();
+            }
+
+            document.getElementById('album-next').addEventListener('click', next);
+            document.getElementById('album-prev').addEventListener('click', prev);
+            dots.forEach((d, i) => d.addEventListener('click', () => {
+                while (order[0] !== i) order.push(order.shift());
+                render();
+            }));
+
+            // ---- Drag to flip ----
+            let dragging = false, startX = 0, dx = 0;
+            const front = () => cards[order[0]];
+            function down(x) { dragging = true; startX = x; dx = 0; gsap.killTweensOf(front()); }
+            function move(x) {
+                if (!dragging) return;
+                dx = x - startX;
+                gsap.set(front(), { x: dx * 0.7, rotateY: dx * -0.06, rotateZ: dx * 0.02 });
+            }
+            function up() {
+                if (!dragging) return; dragging = false;
+                if (dx < -70) { next(); }
+                else if (dx > 70) { prev(); }
+                else { gsap.to(front(), { x: 0, rotateY: 0, rotateZ: 0, duration: 0.4, ease: 'elastic.out(1,0.5)' }); }
+            }
+            stack.addEventListener('mousedown', e => down(e.clientX));
+            window.addEventListener('mousemove', e => move(e.clientX));
+            window.addEventListener('mouseup', up);
+            stack.addEventListener('touchstart', e => down(e.touches[0].clientX), { passive: true });
+            stack.addEventListener('touchmove', e => move(e.touches[0].clientX), { passive: true });
+            stack.addEventListener('touchend', up);
+
+            // ---- Wheel to flip (only when hovering the album) ----
+            let wheelLock = false;
+            stack.addEventListener('wheel', e => {
+                e.preventDefault();
+                if (wheelLock) return; wheelLock = true;
+                (e.deltaY > 0 ? next : prev)();
+                setTimeout(() => wheelLock = false, 450);
+            }, { passive: false });
+
+            // ---- Keyboard ----
+            window.addEventListener('keydown', e => {
+                if (e.key === 'ArrowLeft') next();
+                if (e.key === 'ArrowRight') prev();
+            });
+
+            render(false);
+        })();
+
+        /* ============================================================
+           ✨ CURSOR PARTICLE TRAIL
+           ============================================================ */
+        (() => {
+            const POOL = 18; const dots = [];
+            for (let i = 0; i < POOL; i++) {
+                const d = document.createElement('div');
+                d.className = 'trail-dot'; document.body.appendChild(d); dots.push(d);
+            }
+            let px = window.innerWidth/2, py = window.innerHeight/2;
+            window.addEventListener('mousemove', e => { px = e.clientX; py = e.clientY; }, { passive: true });
+            let positions = dots.map(() => ({ x: px, y: py }));
+            function run() {
+                let tx = px, ty = py;
+                positions.forEach((p, i) => {
+                    p.x += (tx - p.x) * 0.35; p.y += (ty - p.y) * 0.35;
+                    const s = 1 - i / POOL;
+                    dots[i].style.transform = `translate(${p.x}px, ${p.y}px) scale(${s})`;
+                    dots[i].style.opacity = s * 0.6;
+                    tx = p.x; ty = p.y;
+                });
+                requestAnimationFrame(run);
+            }
+            run();
+        })();
+
+        
+        /* ============================================================================
+           🕶️  AR PREVIEW MODULE  —  WebXR + Babylon.js
+           ----------------------------------------------------------------------------
+           Adds an "Augmented Reality preview" feature so users can place graphic
+           designs (banners, posters, billboards, signage…) on real-world surfaces at
+           their TRUE physical size before printing.
+
+           Design goals:
+             • Fully modular & self-contained (single IIFE, no globals leaked).
+             • Babylon.js + the QR library are LAZY-LOADED on demand (keeps the main
+               site fast — nothing is downloaded until the user actually needs AR).
+             • Graceful fallback message when the device has no immersive-ar support.
+             • Does NOT touch / remove any existing site behaviour.
+           ============================================================================ */
+        const ARPreview = (() => {
+
+            /* ---- CDN sources (latest stable Babylon + QR scanner) ---- */
+            const BABYLON_CDN = 'https://cdn.babylonjs.com/babylon.js';
+            const QR_CDN      = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+
+            /* ---- DOM references ---- */
+            const $ = (id) => document.getElementById(id);
+            const els = {
+                section:    $('ar-preview'),
+                tabs:       document.querySelectorAll('.ar-tab'),
+                panelUpload:$('ar-panel-upload'),
+                panelQR:    $('ar-panel-qr'),
+                dropzone:   $('ar-dropzone'),
+                fileInput:  $('ar-file-input'),
+                previewBox: $('ar-preview-box'),
+                previewImg: $('ar-preview-img'),
+                width:      $('ar-width'),
+                height:     $('ar-height'),
+                scaleNote:  $('ar-scale-note'),
+                launchBtn:  $('ar-launch-btn'),
+                qrReader:   $('ar-qr-reader'),
+                qrStatus:   $('ar-qr-status'),
+                qrStart:    $('ar-qr-start'),
+                support:    $('ar-support'),
+                fallback:   $('ar-fallback'),
+                overlay:    $('ar-overlay'),
+                canvas:     $('ar-canvas'),
+                instruction:$('ar-instruction'),
+                loader:     $('ar-loader'),
+                loaderText: $('ar-loader-text'),
+                btnReset:   $('ar-reset'),
+                btnRotate:  $('ar-rotate'),
+                btnScaleUp: $('ar-scale-up'),
+                btnScaleDn: $('ar-scale-down'),
+                btnFull:    $('ar-fullscreen'),
+                btnExit:    $('ar-exit'),
+            };
+
+            /* ---- Module state ---- */
+            let currentImageSrc = null;   // object-URL (upload) or remote URL (QR)
+            let arSupported     = false;  // result of immersive-ar capability check
+            let qrInstance      = null;   // Html5Qrcode instance
+            const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            /* =====================================================================
+               1) UTILITIES — lazy script loader
+               ===================================================================== */
+            function loadScript(src) {
+                return new Promise((resolve, reject) => {
+                    // Avoid double-injecting the same library
+                    if ([...document.scripts].some(s => s.src === src)) return resolve();
+                    const s = document.createElement('script');
+                    s.src = src; s.async = true;
+                    s.onload = () => resolve();
+                    s.onerror = () => reject(new Error('Failed to load ' + src));
+                    document.head.appendChild(s);
+                });
+            }
+            const ensureBabylon = () => window.BABYLON ? Promise.resolve() : loadScript(BABYLON_CDN);
+            const ensureQR      = () => window.Html5Qrcode ? Promise.resolve() : loadScript(QR_CDN);
+
+            function showLoader(txt) { els.loaderText.textContent = txt || '// LOADING...'; els.loader.classList.add('show'); }
+            function hideLoader()    { els.loader.classList.remove('show'); }
+
+            /* =====================================================================
+               2) AR CAPABILITY DETECTION  (req. 16 & 17)
+               ===================================================================== */
+            async function detectSupport() {
+                try {
+                    if (navigator.xr && navigator.xr.isSessionSupported) {
+                        arSupported = await navigator.xr.isSessionSupported('immersive-ar');
+                    }
+                } catch (e) { arSupported = false; }
+
+                if (arSupported) {
+                    els.support.className = 'ar-support ok';
+                    els.support.innerHTML = '<i data-lucide="check-circle"></i> دستگاه شما از واقعیت افزوده پشتیبانی می‌کند';
+                } else {
+                    els.support.className = 'ar-support no';
+                    els.support.innerHTML = '<i data-lucide="alert-triangle"></i> واقعیت افزوده روی این دستگاه فعال نیست';
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+
+            /* =====================================================================
+               3) TAB SWITCHING (Upload  ⇄  QR)  with smooth transition
+               ===================================================================== */
+            function switchMode(mode) {
+                els.tabs.forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+                els.panelUpload.classList.toggle('active', mode === 'upload');
+                els.panelQR.classList.toggle('active', mode === 'qr');
+                // Stop the camera when leaving the QR tab to release the device
+                if (mode !== 'qr') stopQR();
+            }
+
+            /* =====================================================================
+               4) FILE UPLOAD + DRAG&DROP + VALIDATION + PREVIEW  (req. 4)
+               ===================================================================== */
+            function handleFile(file) {
+                if (!file) return;
+                if (!ALLOWED.includes(file.type)) {
+                    alert('فرمت فایل مجاز نیست. فقط JPG، JPEG، PNG و WEBP پشتیبانی می‌شوند.');
+                    return;
+                }
+                // Release any previous object URL to avoid memory leaks
+                if (currentImageSrc && currentImageSrc.startsWith('blob:')) URL.revokeObjectURL(currentImageSrc);
+                currentImageSrc = URL.createObjectURL(file);
+                els.previewImg.src = currentImageSrc;
+                els.previewBox.classList.add('show');
+                validate();
+                if (typeof sounds !== 'undefined' && sounds.success) sounds.success();
+            }
+
+            function bindUpload() {
+                els.fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+                // Drag & drop visual feedback
+                ['dragenter', 'dragover'].forEach(ev =>
+                    els.dropzone.addEventListener(ev, e => { e.preventDefault(); els.dropzone.classList.add('drag'); }));
+                ['dragleave', 'drop'].forEach(ev =>
+                    els.dropzone.addEventListener(ev, e => { e.preventDefault(); els.dropzone.classList.remove('drag'); }));
+                els.dropzone.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+            }
+
+            /* =====================================================================
+               5) REAL DIMENSIONS — live cm→m note + launch enable  (req. 5 & 11)
+               ===================================================================== */
+            function getMeters() {
+                const w = Math.max(1, parseFloat(els.width.value)  || 0) / 100;  // cm → m
+                const h = Math.max(1, parseFloat(els.height.value) || 0) / 100;
+                return { w, h };
+            }
+            function validate() {
+                const { w, h } = getMeters();
+                els.scaleNote.textContent = `// REAL SCALE: ${w.toFixed(2)}m × ${h.toFixed(2)}m`;
+                const ok = !!currentImageSrc && w > 0 && h > 0;
+                els.launchBtn.disabled = !ok;
+            }
+
+            /* =====================================================================
+               6) QR SCANNING  (req. 13)
+               ===================================================================== */
+            async function startQR() {
+                /* --- Pre-flight check #1: secure context ---------------------------------
+                   Browsers ONLY expose the camera (getUserMedia) on a "secure context":
+                   https://  OR  http://localhost . On file:// or plain http:// the call
+                   fails instantly with NotAllowedError. Detect this early so the user gets
+                   an actionable message instead of a cryptic permission error. */
+                if (!window.isSecureContext || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+                    els.qrStatus.innerHTML = '🔒 دوربین فقط روی <b>HTTPS</b> (یا <b>http://localhost</b>) کار می‌کند.<br>' +
+                        'این صفحه را روی یک هاست با HTTPS باز کنید (مثلاً Netlify / Vercel / GitHub Pages).';
+                    return;
+                }
+                try {
+                    els.qrStatus.textContent = '// در حال آماده‌سازی دوربین...';
+                    await ensureQR();
+                    if (!qrInstance) qrInstance = new Html5Qrcode('ar-qr-reader');
+                    await qrInstance.start(
+                        { facingMode: 'environment' },           // prefer the rear camera
+                        { fps: 10, qrbox: { width: 240, height: 240 } },
+                        onQRSuccess,
+                        () => {}                                  // ignore per-frame decode misses
+                    );
+                    els.qrStatus.textContent = '// QR Code پروژه را مقابل دوربین بگیرید';
+                } catch (e) {
+                    /* --- Typed error handling: tell the user exactly what to do ---------- */
+                    const name = (e && (e.name || e.message)) || String(e);
+                    let msg;
+                    if (/NotAllowedError|Permission/i.test(name)) {
+                        msg = '🚫 دسترسی به دوربین رد شد. اگر روی HTTPS هستید، از نوار آدرس مرورگر مجوز «دوربین» را روی Allow بگذارید و دوباره تلاش کنید.';
+                    } else if (/NotFoundError|DevicesNotFound/i.test(name)) {
+                        msg = '📷 دوربینی روی این دستگاه پیدا نشد.';
+                    } else if (/NotReadableError|TrackStart/i.test(name)) {
+                        msg = '⚠️ دوربین در حال استفاده توسط برنامه دیگری است. آن را ببندید و دوباره تلاش کنید.';
+                    } else {
+                        msg = '❌ خطای دوربین: ' + name + ' — مطمئن شوید سایت روی HTTPS اجرا می‌شود.';
+                    }
+                    els.qrStatus.textContent = msg;
+                    console.error('[AR/QR] camera error:', e);
+                }
+            }
+            async function stopQR() {
+                if (qrInstance && qrInstance.isScanning) {
+                    try { await qrInstance.stop(); } catch (e) {}
+                }
+            }
+            function onQRSuccess(decodedText) {
+                stopQR();
+                if (typeof sounds !== 'undefined' && sounds.success) sounds.success();
+                // The QR is expected to encode a direct image URL of the project file
+                if (/^https?:\/\//i.test(decodedText)) {
+                    currentImageSrc = decodedText;
+                    els.previewImg.crossOrigin = 'anonymous';
+                    els.previewImg.src = decodedText;
+                    els.previewBox.classList.add('show');
+                    switchMode('upload');           // jump to preview so user can set size
+                    validate();
+                    els.qrStatus.textContent = '// فایل پروژه از QR بارگذاری شد ✓';
+                } else {
+                    els.qrStatus.textContent = '// QR نامعتبر: لینک تصویری یافت نشد (' + decodedText.slice(0, 40) + ')';
+                }
+            }
+
+            /* =====================================================================
+               7-12) BABYLON.JS  +  WebXR  IMMERSIVE-AR SESSION
+                     • Plane detection            (req. 9)
+                     • Move / Rotate / Scale      (req. 10)
+                     • True real-world scale      (req. 11)
+                     • HUD: reset / 90° / scale / fullscreen / exit  (req. 12)
+               ===================================================================== */
+            let engine, scene, xrHelper, designMesh, reticle;
+            let placed = false, baseW = 1, baseH = 1, userScale = 1;
+            let lastHudTap = 0; // debounce so HUD taps don't place the design
+
+            async function launchAR() {
+                // Graceful fallback when AR is unavailable (req. 17)
+                if (!arSupported) { els.fallback.classList.add('show'); els.fallback.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+
+                const { w, h } = getMeters();
+                baseW = w; baseH = h; userScale = 1; placed = false;
+
+                showLoader('// LOADING AR ENGINE...');
+                try {
+                    await ensureBabylon();          // lazy-load Babylon only now
+                } catch (e) {
+                    hideLoader(); els.fallback.classList.add('show'); return;
+                }
+
+                els.overlay.classList.add('show');
+                els.instruction.style.opacity = '1';
+
+                /* ---- Engine & scene (transparent background = camera passthrough) ---- */
+                engine = new BABYLON.Engine(els.canvas, true, { preserveDrawingBuffer: true, stencil: true, xrCompatible: true, alpha: true });
+                scene  = new BABYLON.Scene(engine);
+                scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);   // fully transparent → AR camera feed shows through
+                scene.autoClear = true;
+
+                const camera = new BABYLON.FreeCamera('arCam', new BABYLON.Vector3(0, 1.2, -2), scene);
+                camera.setTarget(BABYLON.Vector3.Zero());
+                const light = new BABYLON.HemisphericLight('arLight', new BABYLON.Vector3(0, 1, 0), scene);
+                light.intensity = 1.0;
+
+                /* ---- Build the design mesh at REAL scale (meters) ---- */
+                const mat = new BABYLON.StandardMaterial('designMat', scene);
+                const tex = new BABYLON.Texture(currentImageSrc, scene, true, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
+                    null, () => console.warn('AR texture load issue'));
+                mat.diffuseTexture  = tex;
+                mat.emissiveTexture = tex;          // keep colours bright regardless of room light
+                mat.emissiveColor   = new BABYLON.Color3(1, 1, 1);
+                mat.disableLighting = true;
+                mat.backFaceCulling = false;        // visible from both sides
+
+                designMesh = BABYLON.MeshBuilder.CreatePlane('design', { width: baseW, height: baseH, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+                designMesh.material = mat;
+                designMesh.rotationQuaternion = new BABYLON.Quaternion();
+                designMesh.setEnabled(false);       // hidden until placed on a surface
+
+                /* ---- Placement reticle (ring shown on detected surface) ---- */
+                reticle = BABYLON.MeshBuilder.CreateTorus('reticle', { diameter: 0.18, thickness: 0.012, tessellation: 48 }, scene);
+                const rMat = new BABYLON.StandardMaterial('rMat', scene);
+                rMat.emissiveColor = new BABYLON.Color3(0, 0.95, 1); rMat.disableLighting = true;
+                reticle.material = rMat;
+                reticle.rotationQuaternion = new BABYLON.Quaternion();
+                reticle.isVisible = false;
+
+                /* ---- Create the immersive-ar experience ---- */
+                try {
+                    xrHelper = await scene.createDefaultXRExperienceAsync({
+                        uiOptions: { sessionMode: 'immersive-ar', referenceSpaceType: 'local-floor' },
+                        optionalFeatures: true
+                    });
+                } catch (e) {
+                    cleanupAR(); els.fallback.classList.add('show'); hideLoader(); return;
+                }
+
+                const fm = xrHelper.baseExperience.featuresManager;
+
+                /* ---- Hit-test → drives the reticle (req. surface placement) ---- */
+                try {
+                    const hitTest = fm.enableFeature(BABYLON.WebXRHitTest.Name, 'latest');
+                    hitTest.onHitTestResultObservable.add((results) => {
+                        if (results.length) {
+                            if (!placed) reticle.isVisible = true;
+                            results[0].transformationMatrix.decompose(undefined, reticle.rotationQuaternion, reticle.position);
+                        } else {
+                            reticle.isVisible = false;
+                        }
+                    });
+                } catch (e) { console.warn('Hit-test unavailable', e); }
+
+                /* ---- Plane detection feature (req. 9) ---- */
+                try { fm.enableFeature(BABYLON.WebXRPlaneDetector.Name, 'latest'); } catch (e) { console.warn('Plane detector unavailable', e); }
+
+                /* ---- DOM-overlay so our HTML HUD shows during the session ---- */
+                try { fm.enableFeature(BABYLON.WebXRDomOverlay.Name, 'latest', { element: '#ar-overlay' }); } catch (e) { /* optional */ }
+
+                /* ---- Tap to PLACE / MOVE the design (req. 10 move) ---- */
+                xrHelper.baseExperience.sessionManager.onXRSessionInit.add((session) => {
+                    session.addEventListener('select', () => {
+                        if (Date.now() - lastHudTap < 450) return;      // ignore taps on HUD buttons
+                        if (!reticle.isVisible && placed) return;
+                        designMesh.position.copyFrom(reticle.position);
+                        designMesh.rotationQuaternion.copyFrom(reticle.rotationQuaternion);
+                        designMesh.setEnabled(true);
+                        placed = true;
+                        reticle.isVisible = false;
+                        fadeInstruction('برای جابه‌جایی روی نقطه دیگری ضربه بزنید • از دکمه‌ها برای چرخش و تغییر اندازه استفاده کنید');
+                    });
+                });
+
+                /* ---- Clean up automatically when the XR session ends ---- */
+                xrHelper.baseExperience.onStateChangedObservable.add((state) => {
+                    if (state === BABYLON.WebXRState.NOT_IN_XR) cleanupAR();
+                });
+
+                /* ---- Render loop & resize ---- */
+                engine.runRenderLoop(() => scene.render());
+                window.addEventListener('resize', onResize);
+
+                hideLoader();
+                bindPinch();   // two-finger pinch to scale (req. 10 scale)
+            }
+
+            /* ---- Re-apply scaling while preserving the real base size ---- */
+            function applyScale() {
+                if (designMesh) designMesh.scaling.set(userScale, userScale, userScale);
+            }
+
+            /* ---- HUD actions (req. 12) ---- */
+            function hudReset()   { placed = false; userScale = 1; applyScale();
+                                    if (designMesh) { designMesh.setEnabled(false); designMesh.rotationQuaternion.copyFrom(BABYLON.Quaternion.Identity()); }
+                                    fadeInstruction('سطح صاف را پیدا کنید و برای قرار دادن طرح ضربه بزنید', true); }
+            function hudRotate()  { if (designMesh) designMesh.rotate(BABYLON.Axis.Z, Math.PI / 2, BABYLON.Space.LOCAL); }
+            function hudScale(f)  { userScale = Math.min(8, Math.max(0.1, userScale * f)); applyScale(); }
+            function hudFull()    { const el = els.overlay;
+                                    if (!document.fullscreenElement) (el.requestFullscreen || el.webkitRequestFullscreen || (()=>{})).call(el);
+                                    else document.exitFullscreen && document.exitFullscreen(); }
+            async function hudExit() {
+                try { if (xrHelper && xrHelper.baseExperience) await xrHelper.baseExperience.exitXRAsync(); } catch (e) {}
+                cleanupAR();
+            }
+
+            /* ---- Tear down Babylon resources & hide overlay ---- */
+            function cleanupAR() {
+                window.removeEventListener('resize', onResize);
+                unbindPinch();
+                if (engine) { try { engine.stopRenderLoop(); engine.dispose(); } catch (e) {} }
+                engine = scene = xrHelper = designMesh = reticle = null;
+                placed = false;
+                els.overlay.classList.remove('show');
+                if (document.fullscreenElement) document.exitFullscreen && document.exitFullscreen();
+            }
+            function onResize() { if (engine) engine.resize(); }
+
+            /* ---- Instruction banner helpers ---- */
+            function fadeInstruction(text, keep) {
+                els.instruction.textContent = text;
+                els.instruction.style.opacity = '1';
+                if (!keep) setTimeout(() => { els.instruction.style.opacity = '0'; }, 4000);
+            }
+
+            /* ---- Two-finger pinch → scale (touch) ---- */
+            let pinchStart = 0, pinchBase = 1;
+            function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+            function onTouchMove(e) {
+                if (e.touches.length === 2) {
+                    if (!pinchStart) { pinchStart = dist(e.touches); pinchBase = userScale; }
+                    else { userScale = Math.min(8, Math.max(0.1, pinchBase * (dist(e.touches) / pinchStart))); applyScale(); }
+                }
+            }
+            function onTouchEnd(e) { if (e.touches.length < 2) pinchStart = 0; }
+            function bindPinch()   { els.overlay.addEventListener('touchmove', onTouchMove, { passive: true });
+                                     els.overlay.addEventListener('touchend',  onTouchEnd,  { passive: true }); }
+            function unbindPinch() { els.overlay.removeEventListener('touchmove', onTouchMove);
+                                     els.overlay.removeEventListener('touchend',  onTouchEnd); }
+
+            /* =====================================================================
+               INIT — wire up every control
+               ===================================================================== */
+            function init() {
+                if (!els.section) return;             // safety: section not present
+
+                // Tabs
+                els.tabs.forEach(t => t.addEventListener('click', () => {
+                    switchMode(t.dataset.mode);
+                    if (typeof sounds !== 'undefined' && sounds.click) sounds.click();
+                }));
+
+                // Upload + dimensions
+                bindUpload();
+                els.width.addEventListener('input', validate);
+                els.height.addEventListener('input', validate);
+                els.launchBtn.addEventListener('click', launchAR);
+
+                // QR
+                els.qrStart.addEventListener('click', startQR);
+
+                // HUD — mark HUD taps so the XR "select" placer ignores them
+                els.overlay.querySelector('.ar-hud').addEventListener('pointerdown', () => { lastHudTap = Date.now(); });
+                els.btnReset.addEventListener('click', hudReset);
+                els.btnRotate.addEventListener('click', hudRotate);
+                els.btnScaleUp.addEventListener('click', () => hudScale(1.15));
+                els.btnScaleDn.addEventListener('click', () => hudScale(1 / 1.15));
+                els.btnFull.addEventListener('click', hudFull);
+                els.btnExit.addEventListener('click', hudExit);
+
+                // Capability check + initial state
+                detectSupport();
+                validate();
+            }
+
+            init();
+            return { detectSupport, launchAR };
+        })();
+
+                gsap.utils.toArray(".reveal").forEach(card => {
+            gsap.from(card, { scrollTrigger: { trigger: card, start: "top 85%" }, opacity: 0, y: 80, duration: 1, ease: "power3.out" });
+        });
+    </script>
+</body>
+</html>
