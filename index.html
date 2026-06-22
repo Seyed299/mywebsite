@@ -1052,7 +1052,292 @@
             .album-wrap { height: 320px; }
         }
 
-    </style>
+    
+        /* ==================================================================== */
+        /* ==================  ORDER WIZARD SYSTEM (ثبت سفارش)  ================ */
+        /* ==================================================================== */
+
+        /* --- Hero entry card --- */
+        .order-cta {
+            margin: 1.8rem 0 0.5rem;
+            max-width: 560px;
+            width: 100%;
+            cursor: none;
+        }
+        .order-cta .lg-content {
+            padding: 1.8rem 2rem;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.4rem;
+        }
+        .order-cta:hover { transform: translateY(-8px); }
+        .order-cta:hover .lg-face { background: rgba(0, 242, 255, 0.06); }
+        .order-pen-wrap {
+            width: 74px; height: 74px;
+            flex-shrink: 0;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 242, 255, 0.08);
+            border: 1px solid rgba(0, 242, 255, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .order-pen-wrap .ripple { color: var(--primary); }
+        .order-pen-svg { width: 42px; height: 42px; filter: drop-shadow(0 0 8px var(--primary)); }
+        .order-pen-svg path, .order-pen-svg line { stroke: var(--primary); }
+        .order-cta-texts h3 {
+            font-size: 1.55rem; font-weight: 900; margin-bottom: 0.25rem;
+            background: linear-gradient(to right, var(--primary), var(--text-color));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .order-cta-texts p { color: var(--text-muted); font-size: 0.95rem; }
+        .order-cta-arrow {
+            margin-right: auto; color: var(--primary);
+            transition: transform .4s;
+        }
+        .order-cta:hover .order-cta-arrow { transform: translateX(-8px); }
+
+        /* --- Wide modal for the wizard --- */
+        #order-modal .gateway-content { max-width: 760px; }
+        #order-modal .lg-content { padding: 2.6rem 2.4rem; }
+        @media (max-width:768px){ #order-modal .lg-content { padding: 1.6rem 1.1rem; } }
+
+        .ord-head { text-align:center; margin-bottom: 1.4rem; }
+        .ord-head h2 { font-size: 1.9rem; font-weight: 900; }
+        .ord-head p { color: var(--text-muted); font-size: .92rem; margin-top:.3rem; }
+
+        /* Step progress dots */
+        .ord-steps {
+            display:flex; align-items:center; justify-content:center;
+            gap: 8px; margin-bottom: 1.6rem; flex-wrap: wrap;
+        }
+        .ord-dot {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: .3s;
+        }
+        .ord-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); transform: scale(1.4); }
+        .ord-dot.done { background: var(--phone-accent); }
+
+        .ord-step { animation: ordFade .45s ease; }
+        @keyframes ordFade { from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+
+        .ord-section-title { font-size:1.35rem; font-weight:900; margin-bottom: 1rem; text-align:center; }
+        .ord-hint { color: var(--text-muted); font-size:.9rem; text-align:center; margin-bottom:1.2rem; }
+
+        /* Generic field */
+        .ord-field { margin-bottom: 1.1rem; }
+        .ord-field label { display:block; margin-bottom:.5rem; font-weight:700; font-size:.95rem; }
+        .ord-input, .ord-textarea, .ord-select {
+            width:100%; padding: .95rem 1.1rem;
+            background: var(--input-bg);
+            border:1px solid rgba(255,255,255,0.1);
+            border-radius:14px; color:var(--text-color);
+            font-family:'Vazirmatn',sans-serif; font-size:1rem;
+            transition:.3s; cursor:none;
+        }
+        .ord-input:focus, .ord-textarea:focus, .ord-select:focus {
+            outline:none; border-color:var(--primary);
+            box-shadow:0 0 0 3px rgba(0,242,255,.12);
+        }
+        .ord-textarea { min-height:120px; resize:vertical; line-height:1.8; }
+        .ord-input.ltr { direction:ltr; text-align:left; }
+        .ord-gmail-wrap { position:relative; display:flex; align-items:center; }
+        .ord-gmail-wrap .ord-input { padding-left: 96px; }
+        .ord-gmail-suffix {
+            position:absolute; left:14px; color:var(--text-muted);
+            font-family:monospace; pointer-events:none; direction:ltr; font-size:.95rem;
+        }
+        .ord-select option { background:#0a1128; color:#fff; }
+
+        /* App option cards (reuse app-card look) */
+        .ord-apps { display:flex; gap:1.4rem; margin-top:.5rem; }
+        @media (max-width:600px){ .ord-apps{ flex-direction:column; } }
+
+        /* choice grid (order types, banner type, yes/no, print) */
+        .ord-choice-grid {
+            display:grid; grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+            gap: .9rem;
+        }
+        .ord-choice {
+            position:relative; padding:1.1rem .8rem; border-radius:16px;
+            background:var(--input-bg); border:1px solid rgba(255,255,255,0.09);
+            text-align:center; cursor:none; transition:.3s; font-weight:700;
+            display:flex; flex-direction:column; align-items:center; gap:.55rem;
+            overflow:hidden;
+        }
+        .ord-choice:hover { transform:translateY(-5px); border-color:var(--primary); box-shadow:0 10px 26px rgba(0,242,255,.16); }
+        .ord-choice.selected { border-color:var(--primary); background:rgba(0,242,255,.1); box-shadow:0 0 0 2px var(--primary) inset, 0 10px 26px rgba(0,242,255,.22); }
+        .ord-choice .ord-ico { width:30px; height:30px; color:var(--primary); }
+        .ord-choice.selected .ord-ico { color:var(--primary); filter:drop-shadow(0 0 8px var(--primary)); }
+        .ord-choice .chk {
+            position:absolute; top:8px; left:8px; width:20px; height:20px; border-radius:50%;
+            background:var(--primary); color:#021; display:none; align-items:center; justify-content:center;
+        }
+        .ord-choice.selected .chk { display:flex; }
+
+        .ord-big-choice {
+            display:flex; gap:1.2rem; flex-wrap:wrap;
+        }
+        .ord-big-choice .ord-choice { flex:1; min-width:160px; padding:1.8rem 1rem; font-size:1.1rem; }
+
+        /* warning toast */
+        .ord-warn {
+            margin-top:1rem; padding:.9rem 1.1rem; border-radius:12px;
+            background:rgba(255,80,80,.1); border:1px solid rgba(255,80,80,.4);
+            color:#ff9a9a; font-size:.92rem; text-align:center; display:none;
+        }
+        .ord-warn.show { display:block; animation:ordFade .3s ease; }
+
+        /* nav buttons */
+        .ord-nav { display:flex; gap:1rem; margin-top:1.8rem; }
+        .ord-btn {
+            flex:1; padding:1rem; border-radius:14px; font-weight:900; font-size:1rem;
+            font-family:'Vazirmatn',sans-serif; cursor:none; transition:.3s; border:none;
+        }
+        .ord-btn-primary {
+            background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#021018;
+            box-shadow:0 10px 26px rgba(0,242,255,.25);
+        }
+        .ord-btn-primary:hover:not(:disabled){ transform:translateY(-3px); box-shadow:0 14px 34px rgba(0,242,255,.4); }
+        .ord-btn-primary:disabled { opacity:.4; cursor:none; box-shadow:none; }
+        .ord-btn-ghost {
+            background:transparent; color:var(--text-color);
+            border:1px solid rgba(255,255,255,.18);
+        }
+        .ord-btn-ghost:hover { border-color:var(--primary); color:var(--primary); }
+        .ord-btn-send {
+            background:linear-gradient(135deg,var(--phone-accent),#00b36b); color:#021;
+            box-shadow:0 10px 26px rgba(0,255,136,.3);
+        }
+        .ord-btn-send:hover { transform:translateY(-3px); box-shadow:0 14px 34px rgba(0,255,136,.45); }
+
+        /* summary box */
+        .ord-summary {
+            background:var(--input-bg); border:1px solid rgba(255,255,255,.1);
+            border-radius:16px; padding:1.3rem 1.4rem; margin-top:.5rem;
+        }
+        .ord-sum-row { display:flex; justify-content:space-between; gap:1rem; padding:.55rem 0; border-bottom:1px dashed rgba(255,255,255,.08); }
+        .ord-sum-row:last-child{ border-bottom:none; }
+        .ord-sum-row .k { color:var(--text-muted); font-size:.9rem; flex-shrink:0; }
+        .ord-sum-row .v { font-weight:700; text-align:left; direction:ltr; word-break:break-word; }
+        .ord-sum-row .v.rtl { direction:rtl; text-align:right; }
+        .ord-note {
+            margin:1rem 0; padding:.9rem 1.1rem; border-radius:12px;
+            background:rgba(0,242,255,.07); border:1px solid rgba(0,242,255,.25);
+            color:var(--text-muted); font-size:.9rem; line-height:1.7;
+        }
+
+        /* number stepper */
+        .ord-num-wrap { position:relative; }
+        .ord-num-wrap .unit { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:.85rem; pointer-events:none; }
+        input.ord-input[type=number]::-webkit-inner-spin-button { opacity:1; height:32px; }
+
+        /* color picker */
+        .cp-wrap { display:flex; gap:1.4rem; flex-wrap:wrap; }
+        .cp-left { flex:1; min-width:240px; }
+        .cp-right { flex:1; min-width:240px; }
+        .cp-sv {
+            position:relative; width:100%; height:190px; border-radius:14px;
+            cursor:none; touch-action:none;
+            background:
+              linear-gradient(to top, #000, transparent),
+              linear-gradient(to right, #fff, hsl(var(--cp-h,200),100%,50%));
+        }
+        .cp-sv-handle {
+            position:absolute; width:16px; height:16px; border-radius:50%;
+            border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.5);
+            transform:translate(-50%,-50%); pointer-events:none;
+        }
+        .cp-hue {
+            position:relative; width:100%; height:18px; margin-top:.8rem; border-radius:10px;
+            cursor:none; touch-action:none;
+            background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
+        }
+        .cp-hue-handle {
+            position:absolute; top:50%; width:10px; height:26px; border-radius:6px;
+            border:2px solid #fff; box-shadow:0 0 4px rgba(0,0,0,.6);
+            transform:translate(-50%,-50%); pointer-events:none;
+        }
+        .cp-preview {
+            width:100%; height:60px; border-radius:14px; margin-top:.9rem;
+            border:1px solid rgba(255,255,255,.18);
+        }
+        .cp-grad-row { display:flex; align-items:center; gap:.8rem; margin-top:.9rem; flex-wrap:wrap; }
+        .cp-grad-row label { font-size:.9rem; }
+        .cp-stops { display:flex; gap:.6rem; align-items:center; }
+        .cp-stop {
+            width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.3); cursor:none;
+        }
+        .cp-stop.active { border-color:var(--primary); box-shadow:0 0 8px var(--primary); }
+        .cp-readouts { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+        .cp-model { background:var(--input-bg); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:.7rem .8rem; }
+        .cp-model h5 { font-family:monospace; color:var(--primary); margin-bottom:.4rem; font-size:.8rem; letter-spacing:1px; }
+        .cp-model .vals { display:flex; gap:.5rem; flex-wrap:wrap; font-family:monospace; font-size:.82rem; }
+        .cp-model .vals span { background:rgba(255,255,255,.04); padding:.15rem .45rem; border-radius:6px; }
+        .cp-hex-row { display:flex; align-items:center; gap:.6rem; margin-top:.9rem; }
+        .cp-hex-row input { flex:1; }
+        .cp-add {
+            margin-top:1rem; width:100%; padding:.85rem; border-radius:12px; cursor:none;
+            background:rgba(0,242,255,.1); border:1px dashed var(--primary); color:var(--primary);
+            font-weight:800; font-family:'Vazirmatn'; display:flex; align-items:center; justify-content:center; gap:.5rem;
+            transition:.3s;
+        }
+        .cp-add:hover { background:rgba(0,242,255,.18); }
+        .cp-add:disabled { opacity:.4; }
+
+        .ord-color-list { margin-top:1.3rem; display:flex; flex-direction:column; gap:.8rem; }
+        .ord-color-item {
+            display:flex; align-items:center; gap:.9rem;
+            background:var(--input-bg); border:1px solid rgba(255,255,255,.08);
+            border-radius:14px; padding:.7rem .9rem;
+        }
+        .ord-color-dot { width:34px; height:34px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,.25); }
+        .ord-color-item input { flex:1; background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,.12); color:var(--text-color); padding:.4rem .2rem; font-family:'Vazirmatn'; cursor:none; }
+        .ord-color-item input:focus { outline:none; border-color:var(--primary); }
+        .ord-color-rm { cursor:none; color:#ff8a8a; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px; flex-shrink:0; }
+        .ord-color-rm:hover { background:rgba(255,80,80,.12); }
+
+        /* file upload */
+        .ord-uploader {
+            border:1.5px dashed rgba(255,255,255,.2); border-radius:16px;
+            padding:1.4rem; text-align:center; cursor:none; transition:.3s; margin-top:.4rem;
+        }
+        .ord-uploader:hover { border-color:var(--primary); background:rgba(0,242,255,.04); }
+        .ord-uploader i { width:30px; height:30px; color:var(--primary); }
+        .ord-upload-actions { display:flex; gap:.8rem; margin-top:.8rem; flex-wrap:wrap; }
+        .ord-upload-btn {
+            flex:1; min-width:140px; padding:.85rem; border-radius:12px; cursor:none;
+            background:var(--input-bg); border:1px solid rgba(255,255,255,.12); color:var(--text-color);
+            font-family:'Vazirmatn'; font-weight:700; display:flex; align-items:center; justify-content:center; gap:.5rem; transition:.3s;
+        }
+        .ord-upload-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .ord-file-list { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1rem; }
+        .ord-file-chip {
+            display:flex; align-items:center; gap:.5rem; padding:.5rem .8rem; border-radius:10px;
+            background:var(--input-bg); border:1px solid rgba(255,255,255,.1); font-size:.82rem; max-width:100%;
+        }
+        .ord-file-chip img { width:34px; height:34px; object-fit:cover; border-radius:6px; }
+        .ord-file-chip .nm { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ord-file-chip .rm { color:#ff8a8a; cursor:none; }
+
+        .ord-two-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        @media (max-width:560px){ .ord-two-col{ grid-template-columns:1fr; } }
+        .ord-phone-prefix { display:flex; align-items:stretch; gap:0; direction:ltr; }
+        .ord-phone-prefix .pfx {
+            display:flex; align-items:center; padding:0 .9rem; background:rgba(255,255,255,.05);
+            border:1px solid rgba(255,255,255,.1); border-right:none; border-radius:0 14px 14px 0;
+            font-family:monospace; color:var(--text-muted);
+        }
+        .ord-phone-prefix .ord-input { border-radius:14px 0 0 14px; }
+
+        /* sending overlay */
+        .ord-sending { text-align:center; padding:1.5rem 0; }
+        .ord-sending .hologram-icon { width:130px; height:130px; }
+        .ord-sending h2 { font-size:1.6rem; margin:.6rem 0; }
+        .ord-plane { display:inline-block; animation:ordPlane 1.3s ease-in-out infinite; }
+        @keyframes ordPlane { 0%{transform:translateX(0) translateY(0);} 50%{transform:translateX(-26px) translateY(-10px);} 100%{transform:translateX(0) translateY(0);} }
+</style>
 </head>
 <body>
 
@@ -1106,96 +1391,30 @@
 
     <!-- FAB ACTIONS -->
     <div class="fab-group">
-        <div class="fab fab-form" onclick="toggleModal('form-modal', true)">
-            <i data-lucide="mail" stroke="white"></i>
-        </div>
+        
         <div class="fab fab-call" onclick="toggleModal('phone-modal', true)">
             <i data-lucide="phone" stroke="white"></i>
         </div>
     </div>
 
-    <!-- MULTI-APP CONTACT FORM MODAL -->
-    <div id="form-modal" class="gateway-modal">
-        <div class="gateway-overlay" onclick="toggleModal('form-modal', false)"></div>
+    
+    <!-- ============ ORDER WIZARD MODAL ============ -->
+    <div id="order-modal" class="gateway-modal">
+        <div class="gateway-overlay" onclick="closeOrderModal()"></div>
         <div class="gateway-content">
             <div class="liquid-glass-card reveal-anim">
                 <div class="lg-bend"></div>
                 <div class="lg-face"></div>
                 <div class="lg-edge"></div>
                 <div class="lg-content">
-                    <div class="close-btn" onclick="toggleModal('form-modal', false)"><i data-lucide="x"></i></div>
-                    
-                    <!-- STEP 1: APP SELECTION -->
-                    <div id="app-selection">
-                        <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; text-align:center;">ثبت درخواست پروژه</h2>
-                        <p style="color: var(--text-muted); margin-bottom: 1rem; text-align:center;">برای ارسال مشخصات پروژه یکی از اپلیکیشن‌های زیر را انتخاب کنید.</p>
-                        
-                        <div class="app-cards">
-                            <!-- Telegram App Option -->
-                            <div class="app-card tg-card" onclick="openForm('telegram')">
-                                <div class="hologram-icon" style="color: var(--secondary); transform: scale(0.85); margin-bottom: 0; width: 100px; height: 100px;">
-                                    <div class="ripple"></div>
-                                    <div class="ripple" style="animation-delay: 0.8s;"></div>
-                                    <svg viewBox="0 0 496 512" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--secondary));">
-                                        <path class="draw-path" pathLength="100" d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="currentColor"></path>
-                                    </svg>
-                                </div>
-                                <h3>تلگرام</h3>
-                            </div>
-                            
-                            <!-- WhatsApp App Option -->
-                            <div class="app-card wa-card" onclick="openForm('whatsapp')">
-                                <div class="hologram-icon" style="color: var(--wa-accent); transform: scale(0.85); margin-bottom: 0; width: 100px; height: 100px;">
-                                    <div class="ripple"></div>
-                                    <div class="ripple" style="animation-delay: 0.8s;"></div>
-                                    <svg viewBox="0 0 24 24" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--wa-accent));">
-                                        <path class="draw-path" pathLength="100" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" stroke="currentColor" stroke-width="0.4" fill="currentColor"/>
-                                    </svg>
-                                </div>
-                                <h3>واتساپ</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- STEP 2: FORM & TARGET ID WRAPPER -->
-                    <div id="form-wrapper" style="display: none;">
-                        <div class="back-btn" onclick="goBackToSelection()" title="بازگشت"><i data-lucide="arrow-right"></i></div>
-                        
-                        <!-- Header injected dynamically -->
-                        <div id="platform-header" style="text-align: center; margin-bottom: 2rem;"></div>
-                        
-                        <form id="contact-form" novalidate>
-                            <div class="form-group">
-                                <label>نام و نام خانوادگی</label>
-                                <input type="text" class="form-input" id="f-name" placeholder="مثلاً: حسین محمدی">
-                                <span class="error-msg" id="err-name"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>شماره موبایل</label>
-                                <input type="tel" class="form-input" id="f-phone" placeholder="09123456789" style="direction:ltr; text-align:left;">
-                                <span class="error-msg" id="err-phone"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>توضیحات پروژه</label>
-                                <textarea class="form-input" id="f-msg" placeholder="پروژه خود را شرح دهید..."></textarea>
-                                <span class="error-msg" id="err-msg"></span>
-                            </div>
-                            <button type="submit" class="form-submit">تأیید و انتقال به اپلیکیشن </button>
-                        </form>
-                    </div>
-
-                    <!-- STEP 3: SUCCESS STATE -->
-                    <div class="form-success" id="form-success">
-                        <div class="success-check"><i data-lucide="check" style="width:40px;height:40px;"></i></div>
-                        <h2 style="font-size:1.8rem; margin-bottom:0.8rem;">در حال انتقال...</h2>
-                        <p style="color: var(--text-muted);">فرم شما آماده شد. در حال انتقال به اپلیکیشن جهت ارسال نهایی هستیم. به‌زودی با شما تماس می‌گیریم. 💙</p>
-                    </div>
+                    <div class="close-btn" onclick="closeOrderModal()"><i data-lucide="x"></i></div>
+                    <div class="ord-steps" id="ord-steps"></div>
+                    <div id="ord-body"></div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- PHONE MODAL -->
+<!-- PHONE MODAL -->
     <div id="phone-modal" class="gateway-modal">
         <div class="gateway-overlay" onclick="toggleModal('phone-modal', false)"></div>
         <div class="gateway-content">
@@ -1242,7 +1461,31 @@
             <p style="font-size: 1.4rem; color: var(--text-muted); max-width: 800px; margin-bottom: 1rem; border-right: 5px solid var(--primary); padding-right: 25px;">
                 ما با بهره‌گیری از قدرت هوش مصنوعی و هنر گرافیک، هویت بصری کسب‌وکار شما را برای عصر جدید بازآفرینی می‌کنیم. تخصص ما تحول دیجیتال شماست.
             </p>
-            <button class="btn-main" onclick="toggleModal('form-modal', true)">شروع مشاوره رایگان</button>
+            <!-- ============ ORDER REGISTRATION ENTRY CARD ============ -->
+            <div class="liquid-glass-card order-cta" onclick="openOrderModal()">
+                <div class="lg-bend"></div>
+                <div class="lg-face"></div>
+                <div class="lg-edge"></div>
+                <div class="lg-content">
+                    <div class="order-pen-wrap">
+                        <div class="ripple"></div>
+                        <div class="ripple" style="animation-delay:.8s;"></div>
+                        <svg class="order-pen-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="draw-path" pathLength="100" d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                            <path class="draw-path" pathLength="100" d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                            <path class="draw-path" pathLength="100" d="M2 2l7.586 7.586"></path>
+                            <circle cx="11" cy="11" r="2" fill="currentColor"></circle>
+                        </svg>
+                    </div>
+                    <div class="order-cta-texts">
+                        <h3>ثبت سفارش</h3>
+                        <p>سفارش حرفه‌ای و مرحله‌به‌مرحله — طراحی، چاپ و ارسال مستقیم برای ما</p>
+                    </div>
+                    <i data-lucide="arrow-left" class="order-cta-arrow"></i>
+                </div>
+            </div>
+
+            <button class="btn-main" onclick="openOrderModal()">شروع مشاوره رایگان</button>
             
             <div class="stats-row">
                 <div class="liquid-glass-card tilt-card">
@@ -1559,123 +1802,7 @@
             updateThreeColors(isLight);
         });
 
-        /* ============ MULTI-APP FORM LOGIC ============ */
-        let selectedPlatform = '';
-        const targetPhone = "989218832437";
-
-        const headers = {
-            telegram: `
-                <div class="hologram-icon" style="color: var(--secondary); width: 80px; height: 80px; margin: 0 auto 1rem;">
-                    <div class="ripple"></div>
-                    <div class="ripple" style="animation-delay: 0.8s;"></div>
-                    <svg viewBox="0 0 496 512" style="width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--secondary));">
-                        <path class="draw-path" pathLength="100" d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="currentColor"></path>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.5rem;">ارسال در تلگرام</h2>
-                <p style="color: var(--secondary); font-family: monospace; direction: ltr;">+98 921 883 2437</p>
-            `,
-            whatsapp: `
-                <div class="hologram-icon" style="color: var(--wa-accent); width: 80px; height: 80px; margin: 0 auto 1rem;">
-                    <div class="ripple"></div>
-                    <div class="ripple" style="animation-delay: 0.8s;"></div>
-                    <svg viewBox="0 0 24 24" style="width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--wa-accent));">
-                        <path class="draw-path" pathLength="100" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" stroke="currentColor" stroke-width="0.4" fill="currentColor"/>
-                    </svg>
-                </div>
-                <h2 style="font-size: 1.5rem;">ارسال در واتساپ</h2>
-                <p style="color: var(--wa-accent); font-family: monospace; direction: ltr;">+98 921 883 2437</p>
-            `
-        };
-
-        function openForm(platform) {
-            selectedPlatform = platform;
-            sounds.click();
-            document.getElementById('platform-header').innerHTML = headers[platform];
-            
-            gsap.to('#app-selection', { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
-                document.getElementById('app-selection').style.display = 'none';
-                document.getElementById('form-wrapper').style.display = 'block';
-                gsap.fromTo('#form-wrapper', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
-            }});
-        }
-
-        function goBackToSelection() {
-            sounds.click();
-            gsap.to('#form-wrapper', { opacity: 0, y: 20, duration: 0.3, onComplete: () => {
-                document.getElementById('form-wrapper').style.display = 'none';
-                document.getElementById('app-selection').style.display = 'block';
-                gsap.fromTo('#app-selection', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 });
-            }});
-        }
-
-        /* ============ CONTACT FORM VALIDATION & REDIRECT ============ */
-        const form = document.getElementById('contact-form');
-        function setError(input, errEl, msg) {
-            input.classList.add('invalid');
-            document.getElementById(errEl).textContent = msg;
-        }
-        function clearError(input, errEl) {
-            input.classList.remove('invalid');
-            document.getElementById(errEl).textContent = '';
-        }
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            let valid = true;
-            const name = document.getElementById('f-name');
-            const phone = document.getElementById('f-phone');
-            const msg = document.getElementById('f-msg');
-
-            if (name.value.trim().length < 3) {
-                setError(name, 'err-name', 'نام باید حداقل ۳ حرف باشد.');
-                valid = false;
-            } else clearError(name, 'err-name');
-
-            const phoneRegex = /^09\d{9}$/;
-            if (!phoneRegex.test(phone.value.trim())) {
-                setError(phone, 'err-phone', 'شماره معتبر نیست (مثال: 09123456789).');
-                valid = false;
-            } else clearError(phone, 'err-phone');
-
-            if (msg.value.trim().length < 10) {
-                setError(msg, 'err-msg', 'توضیحات باید حداقل ۱۰ حرف باشد.');
-                valid = false;
-            } else clearError(msg, 'err-msg');
-
-            if (valid) {
-                const textMsg = `درخواست پروژه جدید\n\n👤 نام: ${name.value.trim()}\n📱 موبایل: ${phone.value.trim()}\n📝 توضیحات:\n${msg.value.trim()}`;
-                let url = '';
-                
-                if(selectedPlatform === 'whatsapp') {
-                    url = `https://wa.me/${targetPhone}?text=${encodeURIComponent(textMsg)}`;
-                } else if(selectedPlatform === 'telegram') {
-                    url = `https://t.me/+${targetPhone}?text=${encodeURIComponent(textMsg)}`;
-                }
-
-                window.open(url, '_blank');
-
-                sounds.success();
-                gsap.to('#form-wrapper', { opacity: 0, y: -20, duration: 0.4, onComplete: () => {
-                    document.getElementById('form-wrapper').style.display = 'none';
-                    const success = document.getElementById('form-success');
-                    success.style.display = 'block';
-                    lucide.createIcons();
-                    gsap.from(success, { opacity: 0, scale: 0.8, duration: 0.5, ease: "back.out(1.7)" });
-                }});
-                
-                form.reset();
-                setTimeout(() => toggleModal('form-modal', false), 4000);
-            } else {
-                sounds.error();
-            }
-        });
-
-        ['f-name','f-phone','f-msg'].forEach(id => {
-            document.getElementById(id).addEventListener('input', function() {
-                this.classList.remove('invalid');
-            });
-        });
+                });
 
         /* ============ PRELOADER ============ */
         const bootLines = ["> BOOTING NEURAL CORE...","> LOADING GRAPHICS ENGINE...","> CONNECTING TO AI MODULES...","> SYSTEM READY ✓"];
@@ -2631,6 +2758,866 @@
                 gsap.utils.toArray(".reveal").forEach(card => {
             gsap.from(card, { scrollTrigger: { trigger: card, start: "top 85%" }, opacity: 0, y: 80, duration: 1, ease: "power3.out" });
         });
-    </script>
+    
+        /* ==================================================================== */
+        /* ==================  ORDER WIZARD JS (ثبت سفارش)  ==================== */
+        /* ==================================================================== */
+        const orderData = {
+            app: '',            // 'telegram' | 'whatsapp'
+            customer: { name: '', phone: '', email: '' },
+            type: '',           // 'بنر', 'کارت ویزیت', ...
+            banner: { type: '', w: '', h: '', punch: '', punchCount: '' },
+            colors: [],         // [{hex, note}]
+            contactPrint: { mobile1: '', mobile2: '', tel: '' },
+            address: '',
+            notes: '',
+            files: [],          // [{name, dataURL}]
+            printRequired: ''   // 'طراحی و چاپ' | 'فقط طراحی'
+        };
+
+        const targetPhoneNum = "989218832437";
+        let currentStep = 1;
+        const totalSteps = 4; // Core steps. Banner adds its own flow later.
+
+        function openOrderModal() {
+            sounds.open();
+            currentStep = 1;
+            Object.keys(orderData).forEach(k => {
+                if(Array.isArray(orderData[k])) orderData[k] = [];
+                else if(typeof orderData[k] === 'object') Object.keys(orderData[k]).forEach(sub => orderData[k][sub] = '');
+                else orderData[k] = '';
+            });
+            document.getElementById('order-modal').style.display = 'flex';
+            gsap.to('#order-modal', { opacity: 1, duration: 0.4 });
+            gsap.from('#order-modal .reveal-anim', { scale: 0.85, y: 60, opacity: 0, duration: 0.7, ease: "expo.out" });
+            renderOrderStep();
+        }
+
+        function closeOrderModal() {
+            sounds.close();
+            gsap.to('#order-modal', { opacity: 0, duration: 0.3, onComplete: () => {
+                document.getElementById('order-modal').style.display = 'none';
+            }});
+        }
+
+        function setOrdApp(app) {
+            orderData.app = app;
+            sounds.click();
+            document.querySelectorAll('.ord-apps .ord-choice').forEach(el => el.classList.remove('selected'));
+            document.getElementById('ord-app-'+app).classList.add('selected');
+            document.getElementById('ord-btn-app').disabled = false;
+        }
+
+        function buildSteps(activeIdx, count=4) {
+            let h = '';
+            for(let i=1; i<=count; i++) {
+                h += `<div class="ord-dot ${i<activeIdx?'done':i===activeIdx?'active':''}"></div>`;
+            }
+            document.getElementById('ord-steps').innerHTML = h;
+        }
+
+        function renderOrderStep() {
+            const body = document.getElementById('ord-body');
+            gsap.to(body, { opacity: 0, y: -10, duration: 0.2, onComplete: () => {
+
+                let html = '';
+
+                // --------- STEP 1: App Selection ---------
+                if(currentStep === 1) {
+                    buildSteps(1, 4);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>انتخاب اپلیکیشن ارتباطی</h2>
+                                <p>بستر ارسال اطلاعات و دریافت فایل‌های پروژه را انتخاب کنید.</p>
+                            </div>
+                            <div class="ord-apps">
+                                <div class="ord-choice" id="ord-app-telegram" onclick="setOrdApp('telegram')">
+                                    <div class="chk"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+                                    <div class="hologram-icon" style="color:var(--secondary); width:80px; height:80px; margin:0;">
+                                        <div class="ripple"></div><div class="ripple" style="animation-delay:0.8s;"></div>
+                                        <svg viewBox="0 0 496 512" style="width:100%; height:100%; filter:drop-shadow(0 0 10px var(--secondary));">
+                                            <path class="draw-path" pathLength="100" d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="currentColor"></path>
+                                        </svg>
+                                    </div>
+                                    <span style="font-size:1.1rem;">تلگرام</span>
+                                </div>
+                                <div class="ord-choice" id="ord-app-whatsapp" onclick="setOrdApp('whatsapp')">
+                                    <div class="chk"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+                                    <div class="hologram-icon" style="color:var(--wa-accent); width:80px; height:80px; margin:0;">
+                                        <div class="ripple"></div><div class="ripple" style="animation-delay:0.8s;"></div>
+                                        <svg viewBox="0 0 24 24" style="width:100%; height:100%; filter:drop-shadow(0 0 10px var(--wa-accent));">
+                                            <path class="draw-path" pathLength="100" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" stroke="currentColor" stroke-width="0.4" fill="currentColor"/>
+                                        </svg>
+                                    </div>
+                                    <span style="font-size:1.1rem;">واتساپ</span>
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-app" disabled onclick="nextStep(2)">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // --------- STEP 2: Customer Info ---------
+                else if(currentStep === 2) {
+                    buildSteps(2, 4);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>اطلاعات مشتری</h2>
+                                <p>لطفاً اطلاعات هویتی خود را بادقت وارد نمایید.</p>
+                            </div>
+                            <div class="ord-field">
+                                <label>نام و نام خانوادگی</label>
+                                <input type="text" class="ord-input" id="o-name" value="${orderData.customer.name}" placeholder="مثال: حسین محمدی" oninput="validateStep2()">
+                            </div>
+                            <div class="ord-field">
+                                <label>شماره تماس</label>
+                                <input type="tel" class="ord-input ltr" id="o-phone" value="${orderData.customer.phone}" placeholder="09123456789" oninput="validateStep2()">
+                            </div>
+                            <div class="ord-field">
+                                <label>جیمیل</label>
+                                <div class="ord-gmail-wrap">
+                                    <span class="ord-gmail-suffix">@gmail.com</span>
+                                    <input type="text" class="ord-input ltr" id="o-email" value="${orderData.customer.email}" placeholder="username" oninput="validateStep2()">
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(1)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-cust" disabled onclick="saveStep2()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // --------- STEP 3: Confirm Customer Info ---------
+                else if(currentStep === 3) {
+                    buildSteps(3, 4);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>تایید اطلاعات</h2>
+                            </div>
+                            <div class="ord-hint">لطفاً اطلاعات خود را با دقت بررسی نمایید. در صورت وجود هرگونه اشتباه از گزینه بازگشت استفاده کنید.</div>
+
+                            <div class="ord-summary">
+                                <div class="ord-sum-row"><span class="k">نام و نام خانوادگی:</span><span class="v rtl">${orderData.customer.name}</span></div>
+                                <div class="ord-sum-row"><span class="k">شماره تماس:</span><span class="v">+98 ${orderData.customer.phone.substring(1)}</span></div>
+                                <div class="ord-sum-row"><span class="k">جیمیل:</span><span class="v">${orderData.customer.email}@gmail.com</span></div>
+                            </div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(2)">بازگشت و ویرایش</button>
+                                <button class="ord-btn ord-btn-primary" onclick="nextStep(4)">تایید اطلاعات</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // --------- STEP 4: Order Type Selection ---------
+                else if(currentStep === 4) {
+                    buildSteps(4, 4);
+                    const types = ['بنر','مش','استیکر','بروشور','جلد کتاب','کارت ویزیت','تراکت','سربرگ','سرنسخه','لیبل','پوستر','پاکت','فاکتور','لیوان','تیشرت','پرچم ساحلی','پرچم رومیزی','سفارش دلخواه'];
+
+                    let gridHtml = '';
+                    types.forEach(t => {
+                        const isSel = orderData.type === t;
+                        gridHtml += `
+                            <div class="ord-choice ${isSel?'selected':''}" onclick="setOrdType('${t}')" id="ord-type-${t}">
+                                <div class="chk"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+                                <span>${t}</span>
+                            </div>
+                        `;
+                    });
+
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>نوع سفارش</h2>
+                                <p>فقط یک مورد را می‌توانید انتخاب کنید.</p>
+                            </div>
+                            <div class="ord-choice-grid">${gridHtml}</div>
+                            <div id="ord-warn-multi" class="ord-warn">برای ثبت دو یا چند سفارش، لطفاً با پشتیبانی تماس بگیرید.</div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(3)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-type" ${orderData.type?'':'disabled'} onclick="routeFromType()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // =========================================================
+                // ================== BANNER WIZARD FLOW ===================
+                // =========================================================
+
+                else if(currentStep === 5) { // Banner: Type
+                    buildSteps(1, 8); // Banner has 8 steps
+                    const t = orderData.banner.type;
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۱: نوع بنر</h2></div>
+                            <div class="ord-big-choice">
+                                <div class="ord-choice ${t==='افقی'?'selected':''}" onclick="setBannerType('افقی')">
+                                    <div class="chk"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+                                    <div class="ord-ico"><i data-lucide="rectangle-horizontal" style="width:100%;height:100%"></i></div>
+                                    <span>بنر افقی</span>
+                                </div>
+                                <div class="ord-choice ${t==='عمودی'?'selected':''}" onclick="setBannerType('عمودی')">
+                                    <div class="chk"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+                                    <div class="ord-ico"><i data-lucide="rectangle-vertical" style="width:100%;height:100%"></i></div>
+                                    <span>بنر عمودی</span>
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(4)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-bt" ${t?'':'disabled'} onclick="nextStep(6)">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 6) { // Banner: Dimensions
+                    buildSteps(2, 8);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۲: ابعاد بنر</h2></div>
+                            <div class="ord-two-col">
+                                <div class="ord-field ord-num-wrap">
+                                    <label>عرض (متر)</label>
+                                    <input type="number" step="0.1" min="0" class="ord-input ltr" id="b-w" value="${orderData.banner.w}" placeholder="0.0" oninput="validateStep6()">
+                                    <span class="unit">m</span>
+                                </div>
+                                <div class="ord-field ord-num-wrap">
+                                    <label>ارتفاع (متر)</label>
+                                    <input type="number" step="0.1" min="0" class="ord-input ltr" id="b-h" value="${orderData.banner.h}" placeholder="0.0" oninput="validateStep6()">
+                                    <span class="unit">m</span>
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(5)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-dim" ${orderData.banner.w&&orderData.banner.h?'':'disabled'} onclick="saveStep6()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 7) { // Banner: Color Picker
+                    buildSteps(3, 8);
+
+                    let clrHtml = '';
+                    orderData.colors.forEach((c, idx) => {
+                        clrHtml += `
+                            <div class="ord-color-item">
+                                <div class="ord-color-dot" style="background:${c.hex}"></div>
+                                <input type="text" placeholder="توضیحات (مثل: پس‌زمینه)" value="${c.note}" oninput="updateColorNote(${idx}, this.value)">
+                                <div class="ord-color-rm" onclick="removeColor(${idx})"><i data-lucide="trash-2"></i></div>
+                            </div>
+                        `;
+                    });
+
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۳: انتخاب رنگ (تا ۱۰ رنگ)</h2></div>
+                            <div class="cp-wrap">
+                                <div class="cp-left">
+                                    <div class="cp-sv" id="cp-sv"><div class="cp-sv-handle" id="cp-sv-h"></div></div>
+                                    <div class="cp-hue" id="cp-hue"><div class="cp-hue-handle" id="cp-hue-h"></div></div>
+
+                                    <div class="cp-grad-row">
+                                        <label>Gradient Mode:</label>
+                                        <div class="cp-stops">
+                                            <div class="cp-stop active" id="cp-stop-1" style="background:#00f2ff" onclick="activateCpStop(1)"></div>
+                                            <div class="cp-stop" id="cp-stop-2" style="background:#0088cc" onclick="activateCpStop(2)"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cp-preview" id="cp-preview"></div>
+                                </div>
+                                <div class="cp-right">
+                                    <div class="cp-readouts">
+                                        <div class="cp-model"><h5>CMYK</h5><div class="vals" id="cp-cmyk"></div></div>
+                                        <div class="cp-model"><h5>HSB</h5><div class="vals" id="cp-hsb"></div></div>
+                                        <div class="cp-model"><h5>LAB</h5><div class="vals" id="cp-lab"></div></div>
+                                        <div class="cp-model"><h5>RGB</h5><div class="vals" id="cp-rgb"></div></div>
+                                    </div>
+                                    <div class="cp-hex-row">
+                                        <span style="font-family:monospace; color:var(--text-muted);">HEX</span>
+                                        <input type="text" class="ord-input ltr" id="cp-hex" value="#00F2FF" oninput="syncCpFromHex()">
+                                    </div>
+                                    <button class="cp-add" id="cp-btn-add" onclick="addPickerColor()"><i data-lucide="plus-circle"></i> افزودن رنگ به لیست</button>
+                                </div>
+                            </div>
+
+                            <div class="ord-color-list" id="ord-color-list">${clrHtml}</div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(6)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" onclick="nextStep(8)">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 8) { // Banner: Contact info
+                    buildSteps(4, 8);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>مرحله ۴: اطلاعات تماس روی بنر</h2>
+                                <p>در صورت تمایل شماره‌های موردنظر جهت درج روی طرح را وارد کنید. (اختیاری)</p>
+                            </div>
+
+                            <div class="ord-field">
+                                <label>شماره همراه اول</label>
+                                <div class="ord-phone-prefix">
+                                    <span class="pfx">+98</span>
+                                    <input type="tel" class="ord-input ltr" id="c-m1" value="${orderData.contactPrint.mobile1}" placeholder="9123456789">
+                                </div>
+                            </div>
+                            <div class="ord-field">
+                                <label>شماره همراه دوم</label>
+                                <div class="ord-phone-prefix">
+                                    <span class="pfx">+98</span>
+                                    <input type="tel" class="ord-input ltr" id="c-m2" value="${orderData.contactPrint.mobile2}" placeholder="9123456789">
+                                </div>
+                            </div>
+                            <div class="ord-field">
+                                <label>تلفن ثابت (با پیش‌شماره)</label>
+                                <input type="tel" class="ord-input ltr" id="c-tel" value="${orderData.contactPrint.tel}" placeholder="02188888888">
+                            </div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(7)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" onclick="saveStep8()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 9) { // Banner: Address
+                    buildSteps(5, 8);
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۵: آدرس جهت درج در بنر (اختیاری)</h2></div>
+                            <div class="ord-field">
+                                <textarea class="ord-textarea" id="c-addr" placeholder="آدرس کامل...">${orderData.address}</textarea>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(8)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" onclick="saveStep9()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 10) { // Banner: Extra descriptions & Files
+                    buildSteps(6, 8);
+
+                    let fList = '';
+                    orderData.files.forEach((f, idx) => {
+                        const isImg = f.dataURL.startsWith('data:image');
+                        const thumb = isImg ? `<img src="${f.dataURL}">` : `<i data-lucide="file-text"></i>`;
+                        fList += `
+                            <div class="ord-file-chip">
+                                ${thumb}
+                                <span class="nm" title="${f.name}">${f.name}</span>
+                                <i data-lucide="x" class="rm" onclick="removeFile(${idx})"></i>
+                            </div>
+                        `;
+                    });
+
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۶: توضیحات تکمیلی و بارگذاری</h2></div>
+                            <div class="ord-field">
+                                <label>متن‌ها، توضیحات طراحی، درخواست‌های ویژه (اختیاری)</label>
+                                <textarea class="ord-textarea" id="c-notes" placeholder="هر آنچه طراح باید بداند...">${orderData.notes}</textarea>
+                            </div>
+
+                            <label style="font-weight:700; margin-top:1rem; display:block;">بارگذاری فایل، عکس، نمونه یا PDF</label>
+                            <input type="file" id="ord-file-input" style="display:none;" multiple onchange="handleFileSelect(event)">
+                            <div class="ord-upload-actions">
+                                <div class="ord-upload-btn" onclick="document.getElementById('ord-file-input').click()"><i data-lucide="paperclip"></i> انتخاب فایل</div>
+                                <div class="ord-upload-btn" onclick="document.getElementById('ord-file-input').setAttribute('capture','environment'); document.getElementById('ord-file-input').setAttribute('accept','image/*'); document.getElementById('ord-file-input').click();"><i data-lucide="camera"></i> دوربین</div>
+                            </div>
+                            <div class="ord-file-list" id="ord-file-list">${fList}</div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(9)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" onclick="saveStep10()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 11) { // Banner: Print Question
+                    buildSteps(7, 8);
+                    const r = orderData.printRequired;
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۷: چاپ</h2><p>آیا پس از طراحی نیاز به چاپ دارید؟</p></div>
+                            <div class="ord-big-choice">
+                                <div class="ord-choice ${r==='فقط طراحی'?'selected':''}" onclick="setPrintReq('فقط طراحی')">
+                                    <div class="chk"><i data-lucide="check"></i></div>
+                                    <div class="ord-ico"><i data-lucide="monitor" style="width:100%;height:100%"></i></div>
+                                    <span>فقط طراحی</span>
+                                </div>
+                                <div class="ord-choice ${r==='طراحی و چاپ'?'selected':''}" onclick="setPrintReq('طراحی و چاپ')">
+                                    <div class="chk"><i data-lucide="check"></i></div>
+                                    <div class="ord-ico"><i data-lucide="printer" style="width:100%;height:100%"></i></div>
+                                    <span>طراحی و چاپ</span>
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(10)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-prt" ${r?'':'disabled'} onclick="routeFromPrintReq()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 12) { // Banner: Punch
+                    buildSteps(8, 8);
+                    const p = orderData.banner.punch;
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>مرحله ۸: پانچ (حلقه)</h2><p>آیا بنر پانچ شود؟</p></div>
+                            <div class="ord-choice-grid">
+                                <div class="ord-choice ${p==='بله'?'selected':''}" onclick="setPunchReq('بله')">
+                                    <div class="chk"><i data-lucide="check"></i></div><span>بله</span>
+                                </div>
+                                <div class="ord-choice ${p==='خیر'?'selected':''}" onclick="setPunchReq('خیر')">
+                                    <div class="chk"><i data-lucide="check"></i></div><span>خیر</span>
+                                </div>
+                            </div>
+                            <div id="punch-cnt-wrap" style="display:${p==='بله'?'block':'none'}; margin-top:1.5rem;">
+                                <div class="ord-field">
+                                    <label>تعداد پانچ یا حلقه</label>
+                                    <input type="number" min="1" class="ord-input ltr" id="b-punch-cnt" value="${orderData.banner.punchCount}" placeholder="مثال: 4" oninput="validateStep12()">
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(11)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-pnch" ${p&&!(p==='بله'&&!orderData.banner.punchCount)?'':'disabled'} onclick="saveStep12()">مشاهده خلاصه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // =========================================================
+                // ================== GENERIC WIZARD FLOW ==================
+                // =========================================================
+                else if(currentStep === 20) { // Generic: Extra descriptions & Files
+                    // Simplified flow for non-banner items.
+                    buildSteps(1, 2);
+                    let fList = '';
+                    orderData.files.forEach((f, idx) => {
+                        const thumb = f.dataURL.startsWith('data:image') ? `<img src="${f.dataURL}">` : `<i data-lucide="file-text"></i>`;
+                        fList += `<div class="ord-file-chip">${thumb}<span class="nm">${f.name}</span><i data-lucide="x" class="rm" onclick="removeFile(${idx})"></i></div>`;
+                    });
+
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>توضیحات تکمیلی و فایل‌ها</h2></div>
+                            <div class="ord-field">
+                                <label>متن‌ها، اطلاعات کسب‌وکار، درخواست‌های ویژه</label>
+                                <textarea class="ord-textarea" id="c-notes" placeholder="لطفاً توضیحات لازم را بنویسید...">${orderData.notes}</textarea>
+                            </div>
+                            <label style="font-weight:700; margin-top:1rem; display:block;">بارگذاری فایل یا نمونه</label>
+                            <input type="file" id="ord-file-input" style="display:none;" multiple onchange="handleFileSelect(event)">
+                            <div class="ord-upload-actions">
+                                <div class="ord-upload-btn" onclick="document.getElementById('ord-file-input').click()"><i data-lucide="paperclip"></i> انتخاب فایل</div>
+                                <div class="ord-upload-btn" onclick="document.getElementById('ord-file-input').setAttribute('capture','environment'); document.getElementById('ord-file-input').setAttribute('accept','image/*'); document.getElementById('ord-file-input').click();"><i data-lucide="camera"></i> دوربین</div>
+                            </div>
+                            <div class="ord-file-list" id="ord-file-list">${fList}</div>
+
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(4)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" onclick="saveStep20()">ادامه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 21) { // Generic: Print
+                    buildSteps(2, 2);
+                    const r = orderData.printRequired;
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head"><h2>چاپ</h2><p>آیا پس از طراحی نیاز به چاپ دارید؟</p></div>
+                            <div class="ord-big-choice">
+                                <div class="ord-choice ${r==='فقط طراحی'?'selected':''}" onclick="setPrintReq('فقط طراحی')">
+                                    <div class="chk"><i data-lucide="check"></i></div>
+                                    <div class="ord-ico"><i data-lucide="monitor" style="width:100%;height:100%"></i></div><span>فقط طراحی</span>
+                                </div>
+                                <div class="ord-choice ${r==='طراحی و چاپ'?'selected':''}" onclick="setPrintReq('طراحی و چاپ')">
+                                    <div class="chk"><i data-lucide="check"></i></div>
+                                    <div class="ord-ico"><i data-lucide="printer" style="width:100%;height:100%"></i></div><span>طراحی و چاپ</span>
+                                </div>
+                            </div>
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(20)">بازگشت</button>
+                                <button class="ord-btn ord-btn-primary" id="ord-btn-prt" ${r?'':'disabled'} onclick="nextStep(100)">مشاهده خلاصه</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // =========================================================
+                // ================== FINAL SUMMARY ========================
+                // =========================================================
+                else if(currentStep === 100) {
+                    document.getElementById('ord-steps').innerHTML = ''; // Hide steps
+
+                    let dHtml = `
+                        <div class="ord-summary">
+                            <div class="ord-sum-row"><span class="k">مشتری:</span><span class="v rtl">${orderData.customer.name}</span></div>
+                            <div class="ord-sum-row"><span class="k">تماس:</span><span class="v">0${orderData.customer.phone.substring(2)}</span></div>
+                            <div class="ord-sum-row"><span class="k">نوع سفارش:</span><span class="v rtl">${orderData.type}</span></div>
+                    `;
+
+                    if(orderData.type === 'بنر') {
+                        dHtml += `
+                            <div class="ord-sum-row"><span class="k">جهت بنر:</span><span class="v rtl">${orderData.banner.type}</span></div>
+                            <div class="ord-sum-row"><span class="k">ابعاد:</span><span class="v">${orderData.banner.w} × ${orderData.banner.h} متر</span></div>
+                        `;
+                        if(orderData.colors.length>0) {
+                            dHtml += `<div class="ord-sum-row"><span class="k">رنگ‌ها:</span><span class="v rtl">${orderData.colors.length} رنگ انتخابی</span></div>`;
+                        }
+                    }
+
+                    if(orderData.printRequired) {
+                        dHtml += `<div class="ord-sum-row"><span class="k">درخواست:</span><span class="v rtl">${orderData.printRequired}</span></div>`;
+                    }
+                    if(orderData.type === 'بنر' && orderData.printRequired === 'طراحی و چاپ' && orderData.banner.punch) {
+                        let p = orderData.banner.punch === 'بله' ? `${orderData.banner.punchCount} عدد` : 'خیر';
+                        dHtml += `<div class="ord-sum-row"><span class="k">پانچ:</span><span class="v rtl">${p}</span></div>`;
+                    }
+                    if(orderData.files.length>0) {
+                        dHtml += `<div class="ord-sum-row"><span class="k">فایل‌ها:</span><span class="v rtl">${orderData.files.length} فایل ضمیمه</span></div>`;
+                    }
+
+                    dHtml += `</div>`;
+
+                    html = `
+                        <div class="ord-step">
+                            <div class="ord-head">
+                                <h2>خلاصه سفارش</h2>
+                                <p>لطفاً اطلاعات نهایی را بررسی و ارسال کنید.</p>
+                            </div>
+                            ${dHtml}
+                            <div class="ord-nav">
+                                <button class="ord-btn ord-btn-ghost" onclick="nextStep(${orderData.type==='بنر'? (orderData.printRequired==='طراحی و چاپ'?12:11) : 21})">ویرایش</button>
+                                <button class="ord-btn ord-btn-send" onclick="sendOrder()"><i data-lucide="send"></i> ارسال سفارش</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                else if(currentStep === 101) { // Sending / Success
+                    document.getElementById('ord-steps').innerHTML = '';
+                    const aIco = orderData.app === 'whatsapp' ? 
+                        `<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/></svg>` 
+                        : `<svg viewBox="0 0 496 512"><path d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z" fill="currentColor"/></svg>`;
+
+                    const color = orderData.app === 'whatsapp' ? 'var(--wa-accent)' : 'var(--secondary)';
+
+                    html = `
+                        <div class="ord-step ord-sending">
+                            <div class="hologram-icon ord-plane" style="color:${color};">
+                                <div class="ripple"></div><div class="ripple" style="animation-delay:0.8s;"></div>
+                                ${aIco}
+                            </div>
+                            <h2>انتقال به ${orderData.app==='whatsapp'?'واتساپ':'تلگرام'}</h2>
+                            <p style="color:var(--text-muted);">لطفاً پیام تولید شده را ارسال نمایید.</p>
+                        </div>
+                    `;
+                }
+
+                body.innerHTML = html;
+                lucide.createIcons();
+                gsap.to(body, { opacity: 1, y: 0, duration: 0.3 });
+                if(currentStep === 7) setTimeout(initColorPicker, 50); // Delay for DOM
+            }});
+        }
+
+        function nextStep(s) { sounds.click(); currentStep = s; renderOrderStep(); }
+
+        // --- Step 2 Validate & Save ---
+        function validateStep2() {
+            const n = document.getElementById('o-name').value.trim();
+            const p = document.getElementById('o-phone').value.trim();
+            const e = document.getElementById('o-email').value.trim();
+            const pRegex = /^09\d{9}$/;
+            const btn = document.getElementById('ord-btn-cust');
+            btn.disabled = !(n.length>=3 && pRegex.test(p) && e.length>=3);
+        }
+        function saveStep2() {
+            orderData.customer.name = document.getElementById('o-name').value.trim();
+            orderData.customer.phone = document.getElementById('o-phone').value.trim();
+            orderData.customer.email = document.getElementById('o-email').value.trim();
+            nextStep(3);
+        }
+
+        // --- Step 4 ---
+        function setOrdType(t) {
+            orderData.type = t;
+            sounds.click();
+            document.querySelectorAll('.ord-choice-grid .ord-choice').forEach(el => el.classList.remove('selected'));
+            document.getElementById('ord-type-'+t).classList.add('selected');
+            document.getElementById('ord-btn-type').disabled = false;
+        }
+
+        // Multi-select prevention
+        document.addEventListener('click', (e) => {
+            if(currentStep === 4) {
+                const isChoice = e.target.closest('.ord-choice');
+                if(isChoice && orderData.type) {
+                    const t = isChoice.querySelector('span').innerText.trim();
+                    if(t !== orderData.type) {
+                        const w = document.getElementById('ord-warn-multi');
+                        w.classList.remove('show'); void w.offsetWidth; w.classList.add('show');
+                        sounds.error();
+                    }
+                }
+            }
+        });
+
+        function routeFromType() {
+            if(orderData.type === 'بنر') nextStep(5);
+            else nextStep(20);
+        }
+
+        // --- Banner Routing ---
+        function setBannerType(t) {
+            orderData.banner.type = t; sounds.click();
+            renderOrderStep();
+        }
+        function validateStep6() {
+            const w = document.getElementById('b-w').value;
+            const h = document.getElementById('b-h').value;
+            orderData.banner.w = w; orderData.banner.h = h;
+            document.getElementById('ord-btn-dim').disabled = !(w>0 && h>0);
+        }
+        function saveStep6() { nextStep(7); }
+        function saveStep8() {
+            orderData.contactPrint.mobile1 = document.getElementById('c-m1').value.trim();
+            orderData.contactPrint.mobile2 = document.getElementById('c-m2').value.trim();
+            orderData.contactPrint.tel = document.getElementById('c-tel').value.trim();
+            nextStep(9);
+        }
+        function saveStep9() {
+            orderData.address = document.getElementById('c-addr').value.trim();
+            nextStep(10);
+        }
+        function saveStep10() {
+            orderData.notes = document.getElementById('c-notes').value.trim();
+            nextStep(11);
+        }
+        function setPrintReq(r) { orderData.printRequired = r; sounds.click(); renderOrderStep(); }
+        function routeFromPrintReq() {
+            if(orderData.type==='بنر' && orderData.printRequired==='طراحی و چاپ') nextStep(12);
+            else nextStep(100);
+        }
+        function setPunchReq(p) { orderData.banner.punch = p; if(p==='خیر') orderData.banner.punchCount=''; sounds.click(); renderOrderStep(); }
+        function validateStep12() {
+            const v = document.getElementById('b-punch-cnt').value;
+            orderData.banner.punchCount = v;
+            document.getElementById('ord-btn-pnch').disabled = !v;
+        }
+        function saveStep12() { nextStep(100); }
+
+        // --- Generic Routing ---
+        function saveStep20() {
+            orderData.notes = document.getElementById('c-notes').value.trim();
+            nextStep(21);
+        }
+
+        // --- COLOR PICKER LOGIC (Simplified Photoshop-style) ---
+        let cpColor = { h:200, s:100, b:100 };
+        let activeStop = 1;
+        let isDraggingSV = false; let isDraggingHue = false;
+
+        function initColorPicker() {
+            const sv = document.getElementById('cp-sv');
+            const hue = document.getElementById('cp-hue');
+            if(!sv) return;
+
+            sv.addEventListener('pointerdown', e => { isDraggingSV=true; updateSV(e); sv.setPointerCapture(e.pointerId); });
+            sv.addEventListener('pointermove', e => { if(isDraggingSV) updateSV(e); });
+            sv.addEventListener('pointerup', e => { isDraggingSV=false; sv.releasePointerCapture(e.pointerId); });
+
+            hue.addEventListener('pointerdown', e => { isDraggingHue=true; updateHue(e); hue.setPointerCapture(e.pointerId); });
+            hue.addEventListener('pointermove', e => { if(isDraggingHue) updateHue(e); });
+            hue.addEventListener('pointerup', e => { isDraggingHue=false; hue.releasePointerCapture(e.pointerId); });
+
+            refreshCpUI();
+        }
+
+        function updateSV(e) {
+            const rect = document.getElementById('cp-sv').getBoundingClientRect();
+            let x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            let y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+            cpColor.s = Math.round((x / rect.width) * 100);
+            cpColor.b = Math.round((1 - (y / rect.height)) * 100);
+            refreshCpUI();
+        }
+        function updateHue(e) {
+            const rect = document.getElementById('cp-hue').getBoundingClientRect();
+            let x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            cpColor.h = Math.round((x / rect.width) * 360);
+            if(cpColor.h >= 360) cpColor.h = 0;
+            refreshCpUI();
+        }
+
+        function hsvToRgb(h,s,v) {
+            s=s/100; v=v/100;
+            let f=(n,k=(n+h/60)%6)=>v-v*s*Math.max(Math.min(k,4-k,1),0);
+            return [Math.round(f(5)*255), Math.round(f(3)*255), Math.round(f(1)*255)];
+        }
+        function rgbToHex(r,g,b) { return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1).toUpperCase(); }
+        function rgbToCmyk(r,g,b) {
+            let c=1-(r/255), m=1-(g/255), y=1-(b/255);
+            let k=Math.min(c,Math.min(m,y));
+            if(k===1) return [0,0,0,100];
+            return [Math.round((c-k)/(1-k)*100), Math.round((m-k)/(1-k)*100), Math.round((y-k)/(1-k)*100), Math.round(k*100)];
+        }
+        function rgbToLab(r,g,b) {
+            let R=r/255, G=g/255, B=b/255;
+            R = R>0.04045 ? Math.pow((R+0.055)/1.055, 2.4) : R/12.92;
+            G = G>0.04045 ? Math.pow((G+0.055)/1.055, 2.4) : G/12.92;
+            B = B>0.04045 ? Math.pow((B+0.055)/1.055, 2.4) : B/12.92;
+            let X = (R*0.4124+G*0.3576+B*0.1805)/0.95047;
+            let Y = (R*0.2126+G*0.7152+B*0.0722)/1.00000;
+            let Z = (R*0.0193+G*0.1192+B*0.9505)/1.08883;
+            let fx = X>0.008856 ? Math.pow(X,1/3) : (7.787*X)+16/116;
+            let fy = Y>0.008856 ? Math.pow(Y,1/3) : (7.787*Y)+16/116;
+            let fz = Z>0.008856 ? Math.pow(Z,1/3) : (7.787*Z)+16/116;
+            return [Math.round((116*fy)-16), Math.round(500*(fx-fy)), Math.round(200*(fy-fz))];
+        }
+
+        function refreshCpUI() {
+            const rgb = hsvToRgb(cpColor.h, cpColor.s, cpColor.b);
+            const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+            const cmyk = rgbToCmyk(rgb[0], rgb[1], rgb[2]);
+            const lab = rgbToLab(rgb[0], rgb[1], rgb[2]);
+
+            document.getElementById('cp-sv').style.setProperty('--cp-h', cpColor.h);
+            document.getElementById('cp-sv-h').style.left = cpColor.s + '%';
+            document.getElementById('cp-sv-h').style.top = (100 - cpColor.b) + '%';
+            document.getElementById('cp-hue-h').style.left = (cpColor.h/360 * 100) + '%';
+
+            document.getElementById('cp-stop-'+activeStop).style.background = hex;
+            const c1 = document.getElementById('cp-stop-1').style.background || '#00f2ff';
+            const c2 = document.getElementById('cp-stop-2').style.background || '#0088cc';
+            document.getElementById('cp-preview').style.background = `linear-gradient(90deg, ${c1}, ${c2})`;
+
+            document.getElementById('cp-cmyk').innerHTML = `<span>C:${cmyk[0]}</span><span>M:${cmyk[1]}</span><span>Y:${cmyk[2]}</span><span>K:${cmyk[3]}</span>`;
+            document.getElementById('cp-hsb').innerHTML = `<span>H:${cpColor.h}</span><span>S:${cpColor.s}</span><span>B:${cpColor.b}</span>`;
+            document.getElementById('cp-lab').innerHTML = `<span>L:${lab[0]}</span><span>a:${lab[1]}</span><span>b:${lab[2]}</span>`;
+            document.getElementById('cp-rgb').innerHTML = `<span>R:${rgb[0]}</span><span>G:${rgb[1]}</span><span>B:${rgb[2]}</span>`;
+            document.getElementById('cp-hex').value = hex;
+        }
+
+        function activateCpStop(idx) {
+            activeStop = idx;
+            document.querySelectorAll('.cp-stop').forEach(el=>el.classList.remove('active'));
+            document.getElementById('cp-stop-'+idx).classList.add('active');
+        }
+
+        function syncCpFromHex() {
+            let hex = document.getElementById('cp-hex').value;
+            if(/^#[0-9A-F]{6}$/i.test(hex)) {
+                let r = parseInt(hex.substr(1,2),16), g = parseInt(hex.substr(3,2),16), b = parseInt(hex.substr(5,2),16);
+                let max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+                cpColor.b = Math.round(max/255*100);
+                cpColor.s = max===0 ? 0 : Math.round(d/max*100);
+                let h=0;
+                if(max!==min) {
+                    if(max===r) h = (g-b)/d + (g<b?6:0);
+                    else if(max===g) h = (b-r)/d + 2;
+                    else h = (r-g)/d + 4;
+                    h/=6;
+                }
+                cpColor.h = Math.round(h*360);
+                refreshCpUI();
+            }
+        }
+
+        function addPickerColor() {
+            if(orderData.colors.length >= 10) return;
+            const hex = document.getElementById('cp-hex').value;
+            orderData.colors.push({ hex, note: '' });
+            sounds.click();
+            renderOrderStep(); // re-render the list
+        }
+        function removeColor(idx) { orderData.colors.splice(idx, 1); renderOrderStep(); }
+        function updateColorNote(idx, val) { orderData.colors[idx].note = val; }
+
+
+        // --- FILE HANDLING ---
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if(!files) return;
+            for(let i=0; i<files.length; i++) {
+                const f = files[i];
+                if(f.size > 10 * 1024 * 1024) continue; // 10MB limit per file client side
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    orderData.files.push({ name: f.name, dataURL: ev.target.result });
+                    renderOrderStep();
+                };
+                reader.readAsDataURL(f);
+            }
+        }
+        function removeFile(idx) { orderData.files.splice(idx,1); renderOrderStep(); }
+
+
+        // --- SENDING LOGIC ---
+        function sendOrder() {
+            nextStep(101);
+
+            let txt = `📋 *سفارش جدید* - ${orderData.type}\n`;
+            txt += `\n👤 *مشتری:* ${orderData.customer.name}`;
+            txt += `\n📞 *تماس:* 0${orderData.customer.phone.substring(2)}`;
+            txt += `\n📧 *جیمیل:* ${orderData.customer.email}@gmail.com\n`;
+
+            if(orderData.type === 'بنر') {
+                txt += `\n🖼 *بنر:* ${orderData.banner.type} | ابعاد: ${orderData.banner.w}x${orderData.banner.h}m`;
+                if(orderData.colors.length>0) {
+                    txt += `\n🎨 *رنگ‌ها:*`;
+                    orderData.colors.forEach(c => txt += `\n- ${c.hex} (${c.note||'بدون توضیح'})`);
+                }
+                if(orderData.contactPrint.mobile1 || orderData.contactPrint.tel) {
+                    txt += `\n📱 *تلفن روی بنر:* ${orderData.contactPrint.mobile1} / ${orderData.contactPrint.tel}`;
+                }
+                if(orderData.address) txt += `\n📍 *آدرس روی بنر:* ${orderData.address}`;
+            }
+
+            if(orderData.printRequired) {
+                txt += `\n\n🖨 *وضعیت چاپ:* ${orderData.printRequired}`;
+                if(orderData.type==='بنر' && orderData.printRequired==='طراحی و چاپ' && orderData.banner.punch==='بله') {
+                    txt += ` | پانچ: ${orderData.banner.punchCount} عدد`;
+                }
+            }
+
+            if(orderData.notes) txt += `\n\n📝 *توضیحات:* ${orderData.notes}`;
+            if(orderData.files.length>0) txt += `\n📎 *ضمائم:* ${orderData.files.length} فایل آپلود شد.`;
+
+            let url = '';
+            if(orderData.app === 'whatsapp') {
+                url = `https://wa.me/${targetPhoneNum}?text=${encodeURIComponent(txt)}`;
+            } else {
+                url = `https://t.me/+${targetPhoneNum}?text=${encodeURIComponent(txt)}`;
+            }
+
+            setTimeout(() => {
+                window.open(url, '_blank');
+                setTimeout(() => { closeOrderModal(); }, 1500);
+            }, 1800);
+        }
+</script>
 </body>
 </html>
